@@ -1,5 +1,6 @@
 package edu.hcmuaf.tourrecommendationapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -9,6 +10,10 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+
+import edu.hcmuaf.tourrecommendationapp.model.User;
+import edu.hcmuaf.tourrecommendationapp.util.SharedPrefs;
+import edu.hcmuaf.tourrecommendationapp.util.Utils;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -25,6 +30,13 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
+
+
+        System.out.println("AccessToken: " + Utils.getAccessToken());
+        System.out.println("RefreshToken: " + Utils.getAccessToken());
+        if (Utils.getAccessToken() == null) {
+            startActivity(new Intent(this, LoginActivity.class));
+        }
     }
 
 }

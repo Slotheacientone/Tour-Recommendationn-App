@@ -32,7 +32,7 @@ public class SharedPrefs {
         } else if (anonymousClass == Long.class) {
             return (T) Long.valueOf(mSharedPreferences.getLong(key, 0));
         }
-        return null;
+        return (T) Utils.fromJson(mSharedPreferences.getString(key, ""), anonymousClass);
     }
 
     public <T> void put(String key, T data) {
@@ -47,6 +47,8 @@ public class SharedPrefs {
             editor.putInt(key, (Integer) data);
         } else if (data instanceof Long) {
             editor.putLong(key, (Long) data);
+        } else {
+            editor.putString(key, Utils.toJson(data));
         }
         editor.apply();
     }
