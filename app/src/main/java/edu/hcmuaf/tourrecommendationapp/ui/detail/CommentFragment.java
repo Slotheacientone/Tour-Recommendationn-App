@@ -5,6 +5,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -48,18 +49,18 @@ public class CommentFragment extends Fragment {
     private ImageButton sendButton;
     private RatingBar ratingBar;
     private List<Comment> comments = new ArrayList<Comment>();
-    private String locationId;
+    private long locationId;
 
 
-    public CommentFragment(String locationId) {
+    public CommentFragment() {
         // Required empty public constructor
-        this.locationId = locationId;
     }
 
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        locationId = requireArguments().getLong("locationId");
     }
 
     @Override
@@ -72,7 +73,8 @@ public class CommentFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        String userId = SharedPrefs.getInstance().get("userId", String.class);
+      //  long userId = SharedPrefs.getInstance().get("userId", Long.class);
+        long userId = 958;
         commentList = view.findViewById(R.id.comment_list);
         avatar = view.findViewById(R.id.comment_avatar);
         comment = view.findViewById(R.id.comment_edit_text);
@@ -127,9 +129,9 @@ public class CommentFragment extends Fragment {
 //        requestQueue.add(stringRequest);
 //    }
 //
-    private void createComment(String comment, String userId, String locationId, float locationRating, RecycleViewCommentAdapter adapter) throws JSONException {
+    private void createComment(String comment, long userId, long locationId, float locationRating, RecycleViewCommentAdapter adapter) throws JSONException {
         JSONObject jsonObject = new JSONObject();
-        String token = SharedPrefs.getInstance().get("token", String.class);
+       // String token = SharedPrefs.getInstance().get("token", String.class);
         jsonObject.put("userId", userId);
         jsonObject.put("locationId", locationId);
         jsonObject.put("locationRating", locationRating);
@@ -145,22 +147,22 @@ public class CommentFragment extends Fragment {
             public void onErrorResponse(VolleyError error) {
                 System.out.println(error);
             }
-        }) {
+        }) /*{
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> header = new HashMap<String, String>();
                 header.put("Authorization", "Bearer " + token);
                 return header;
             }
-        };
+        }*/;
         RequestQueue requestQueue = Volley.newRequestQueue(this.getContext());
         requestQueue.add(jsonObjectRequest);
     }
 
     private void requestComment(RecycleViewCommentAdapter adapter) {
         RequestQueue requestQueue = Volley.newRequestQueue(this.getContext());
-        String url = getString(R.string.base_api_uri) + getString(R.string.get_comment_api_uri);
-        String token = SharedPrefs.getInstance().get("token", String.class);
+        String url = getString(R.string.base_api_uri) + getString(R.string.get_comment_api_uri) + "?locationId=957";
+       // String token = SharedPrefs.getInstance().get("token", String.class);
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
@@ -178,7 +180,7 @@ public class CommentFragment extends Fragment {
             public void onErrorResponse(VolleyError error) {
                 System.out.println(error);
             }
-        }) {
+        })/* {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 // String accessToken = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJzbG92ZXJzaW9uMkBnbWFpbC5jb20iLCJpYXQiOjE2MTA5NTYyNjAsImV4cCI6MTYxMTA0MjY2MH0.RgW5acxGapHkb_KD57LlIPsMhhN9EsNYkSa6caDlF-wozF5NUtJqn7VvVB074H4ErV3LeWCG-IFRFqVq8Qr_8nTlToYxX8qCw-TILTyQ9BAUhOzxblZf-cp34ORo1X6VGbFCNfvubX1w0SGfyJmus8e9BZszwmAIDcFZlA5dUJgEDh4IXi5nVNil6C58PpXmVKH0XSRH01z-ufy_mOcTmA_AUd4fKfyx7Dtju07JMJ49TNt0oBYLB7Qt2VPBo7gUcq_PqWDDZ0CxQANUGGXXPanidWCuiCzXwumhUtnZDutAzgeTj0xkM6fR_FFZZVtJSIb9fQn0cL_LV5T6HDrjLA";
@@ -186,7 +188,7 @@ public class CommentFragment extends Fragment {
                 header.put("Authorization", "Bearer " + token);
                 return header;
             }
-        };
+        }*/;
         requestQueue.add(stringRequest);
     }
 }

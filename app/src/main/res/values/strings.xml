@@ -5,7 +5,7 @@
     <string name="title_notifications">Notifications</string>
 
     <!-- Uri -->
-    <string name="base_api_uri">https://localhost:8080</string>
+    <string name="base_api_uri">http://192.168.1.22:8080</string>
     <string name="register_user_rating_api_uri">/register-user-rating</string>
     <string name="get_comment_api_uri">/get-comments</string>
 </resources>
