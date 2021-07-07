@@ -71,9 +71,6 @@ public class CommentService {
         Response response = ApiClient.sendAsync(request).get();
         Type commentsType = new TypeToken<List<Comment>>() {
         }.getType();
-        Gson gson = new Gson();
-        String responseBody = response.body().string();
-        System.out.println("body: " + responseBody);
-        return null;
+        return Utils.fromJson(response.body().string(),commentsType);
     }
 }

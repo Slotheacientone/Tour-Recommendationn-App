@@ -3,6 +3,7 @@ package edu.hcmuaf.tourrecommendationapp;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -40,6 +41,12 @@ public class LoginActivity extends AppCompatActivity {
         //for changing status bar icon colors
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        }
+        int SDK_INT = android.os.Build.VERSION.SDK_INT;
+        if (SDK_INT > 8) {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+                    .permitAll().build();
+            StrictMode.setThreadPolicy(policy);
         }
         setContentView(R.layout.activity_login);
         txtUsername = findViewById(R.id.editTextUsername);

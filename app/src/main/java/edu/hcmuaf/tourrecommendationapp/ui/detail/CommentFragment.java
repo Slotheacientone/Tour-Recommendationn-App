@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RatingBar;
+import android.widget.TextView;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -28,6 +29,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,12 +44,14 @@ import java.util.concurrent.ExecutionException;
 
 import edu.hcmuaf.tourrecommendationapp.R;
 import edu.hcmuaf.tourrecommendationapp.model.Comment;
+import edu.hcmuaf.tourrecommendationapp.model.User;
 import edu.hcmuaf.tourrecommendationapp.service.CommentService;
 import edu.hcmuaf.tourrecommendationapp.util.SharedPrefs;
 
 public class CommentFragment extends Fragment {
 
     private RecyclerView commentList;
+    private TextView userName;
     private ImageView avatar;
     private EditText comment;
     private ImageButton sendButton;
@@ -55,6 +59,7 @@ public class CommentFragment extends Fragment {
     private List<Comment> comments = new ArrayList<Comment>();
     private long locationId;
     private CommentService commentService;
+    private User user;
 
 
     public CommentFragment() {
@@ -78,21 +83,24 @@ public class CommentFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-//        int SDK_INT = android.os.Build.VERSION.SDK_INT;
-//        if (SDK_INT > 8) {
-//            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
-//                    .permitAll().build();
-//            StrictMode.setThreadPolicy(policy);
-//        }
-            //  long userId = SharedPrefs.getInstance().get("userId", Long.class);
-        long userId = 958;
+        int SDK_INT = android.os.Build.VERSION.SDK_INT;
+        if (SDK_INT > 8) {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+                    .permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+        }
+        user = SharedPrefs.getInstance().get("myInfo", User.class);
+        System.out.println(user.getId());
+        System.out.println(user.getUsername());
         commentService = CommentService.getInstance();
         commentList = view.findViewById(R.id.comment_list);
+        userName = view.findViewById(R.id.user_name);
         avatar = view.findViewById(R.id.comment_avatar);
         comment = view.findViewById(R.id.comment_edit_text);
         ratingBar = view.findViewById(R.id.rating_bar);
         sendButton = view.findViewById(R.id.send_button);
-      //  requestAvatar();
+        userName.setText(user.getUsername());
+        Picasso.get().load(user.getThumbnail()).into(avatar);
         RecycleViewCommentAdapter adapter = new RecycleViewCommentAdapter(this.getContext(), comments);
         requestComment(adapter);
         commentList.setAdapter(adapter);
@@ -103,7 +111,7 @@ public class CommentFragment extends Fragment {
                 String commentString = comment.getText().toString();
                 float rating = ratingBar.getRating();
                 try {
-                    commentService.registerComment(commentString, userId, locationId, rating);
+                    commentService.registerComment(commentString, user.getId(), locationId, rating);
                     requestComment(adapter);
                 } catch (ExecutionException | InterruptedException | IOException e) {
                     e.printStackTrace();
@@ -114,11 +122,10 @@ public class CommentFragment extends Fragment {
     }
 
     private void requestComment(RecycleViewCommentAdapter adapter) {
-        locationId = 957;
         try {
-            List<Comment> reponse = commentService.getComments(locationId);
+            List<Comment> response = commentService.getComments(locationId);
             comments.clear();
-            comments.addAll(reponse);
+            comments.addAll(response);
             adapter.notifyDataSetChanged();
         } catch (ExecutionException | InterruptedException | IOException e) {
             e.printStackTrace();
