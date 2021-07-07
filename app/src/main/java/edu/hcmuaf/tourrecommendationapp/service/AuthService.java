@@ -36,7 +36,7 @@ public class AuthService {
         //build request
         RequestBody requestBody = RequestBody.create(Utils.toJson(loginRequest), ApiClient.JSON);
         Request request = new Request.Builder()
-                .url(Utils.BASE_URL + "/auth/login")
+                .url(Utils.BASE_URL + "/api/auth/login")
                 .post(requestBody)
                 .build();
 
@@ -82,7 +82,7 @@ public class AuthService {
         //build request
         RequestBody requestBody = RequestBody.create(Utils.toJson(registerRequest), ApiClient.JSON);
         Request request = new Request.Builder()
-                .url(Utils.BASE_URL + "/auth/signup")
+                .url(Utils.BASE_URL + "/api/auth/signup")
                 .post(requestBody)
                 .build();
 
@@ -92,6 +92,7 @@ public class AuthService {
         }
 
         if (!response.isSuccessful()) {
+            System.out.println(response.body().toString());
             throw new Exception("Username already exists");
         }
 
