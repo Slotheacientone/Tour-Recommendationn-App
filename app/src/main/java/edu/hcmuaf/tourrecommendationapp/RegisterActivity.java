@@ -26,7 +26,7 @@ import okhttp3.Response;
 
 
 public class RegisterActivity extends AppCompatActivity {
-    private EditText txtUsername, txtPassword;
+    private EditText txtName, txtUsername, txtPassword;
     private AuthService authService;
 
     @Override
@@ -35,7 +35,7 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
         changeStatusBarColor();
 
-
+        txtName = findViewById(R.id.editTextName);
         txtUsername = findViewById(R.id.editTextUsername);
         txtPassword = findViewById(R.id.editTextPassword);
 
@@ -60,10 +60,11 @@ public class RegisterActivity extends AppCompatActivity {
     public void onRegister(View v) {
         String username = txtUsername.getText().toString();
         String password = txtPassword.getText().toString();
+        String name = txtName.getText().toString();
 
 
         try {
-            submit(new RegisterRequest(username, password));
+            submit(new RegisterRequest(name, username, password));
         } catch (Exception e) {
             Toast.makeText(this, "Network error try again", Toast.LENGTH_LONG).show();
             e.printStackTrace();

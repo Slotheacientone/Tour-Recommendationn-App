@@ -12,7 +12,8 @@ public class SharedPrefs {
         mSharedPreferences = App.self().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
     }
 
-    public static SharedPrefs getInstance() {
+    synchronized public static SharedPrefs getInstance() {
+
         if (mInstance == null) {
             mInstance = new SharedPrefs();
         }

@@ -4,34 +4,17 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-
-import org.json.JSONException;
-
-import java.io.IOException;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-
 import edu.hcmuaf.tourrecommendationapp.dto.LoginRequest;
-import edu.hcmuaf.tourrecommendationapp.dto.LoginResponse;
-import edu.hcmuaf.tourrecommendationapp.model.User;
 import edu.hcmuaf.tourrecommendationapp.service.AuthService;
-import edu.hcmuaf.tourrecommendationapp.service.UserService;
-import edu.hcmuaf.tourrecommendationapp.util.ApiClient;
-import edu.hcmuaf.tourrecommendationapp.util.SharedPrefs;
-import edu.hcmuaf.tourrecommendationapp.util.Utils;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 
 public class LoginActivity extends AppCompatActivity {
-    private static final String TAG = "Activity";
+    private static final String TAG = "LoginActivity";
     private EditText txtUsername, txtPassword;
     private AuthService authService;
 
@@ -54,7 +37,6 @@ public class LoginActivity extends AppCompatActivity {
 
         //DI
         authService = AuthService.getInstance();
-
     }
 
     public void onLogin(View view) {
@@ -87,6 +69,8 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(new Intent(this, RegisterActivity.class));
         overridePendingTransition(android.R.anim.slide_out_right, android.R.anim.fade_in);
     }
+
+
 }
 
 

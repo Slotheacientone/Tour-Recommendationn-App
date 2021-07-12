@@ -2,21 +2,24 @@ package edu.hcmuaf.tourrecommendationapp.util;
 
 import com.google.gson.Gson;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Type;
-import java.util.Arrays;
+
+import edu.hcmuaf.tourrecommendationapp.R;
+import edu.hcmuaf.tourrecommendationapp.dto.LoginResponse;
 
 public class Utils {
-
-    public static final String BASE_URL = "http://192.168.1.22:8080";
+    public static final String BASE_URL = Resource.getString(R.string.base_api_uri);
     private static final Gson gson = new Gson();
+    private static final SharedPrefs sharePrefers = SharedPrefs.getInstance();
 
     public static String getAccessToken() {
-        return SharedPrefs.getInstance().get("accessToken", String.class);
+        LoginResponse auth = sharePrefers.get("auth", LoginResponse.class);
+        return auth == null ? null : auth.getAccessToken();
     }
 
     public static String getRefreshToken() {
-        return SharedPrefs.getInstance().get("refreshToken", String.class);
+        LoginResponse auth = sharePrefers.get("auth", LoginResponse.class);
+        return auth == null ? null : auth.getRefreshToken();
     }
 
     public static String toJson(Object object) {

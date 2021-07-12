@@ -2,6 +2,7 @@ package edu.hcmuaf.tourrecommendationapp;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -11,11 +12,17 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import edu.hcmuaf.tourrecommendationapp.dto.LoginResponse;
 import edu.hcmuaf.tourrecommendationapp.model.User;
+import edu.hcmuaf.tourrecommendationapp.service.AuthService;
 import edu.hcmuaf.tourrecommendationapp.util.SharedPrefs;
 import edu.hcmuaf.tourrecommendationapp.util.Utils;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "MainActivity";
+
+    private AuthService authService = AuthService.getInstance();
+    private SharedPrefs sharedPrefs = SharedPrefs.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,10 +38,7 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
 
-
-        System.out.println("AccessToken: " + Utils.getAccessToken());
-        System.out.println("RefreshToken: " + Utils.getAccessToken());
-        if (Utils.getAccessToken() == null) {
+        if (sharedPrefs.get("auth", LoginResponse.class) == null) {
             startActivity(new Intent(this, LoginActivity.class));
         }
     }
