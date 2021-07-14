@@ -7,7 +7,8 @@
 
     <string name="hello_blank_fragment">Empty</string>
     <!-- Uri -->
-    <string name="base_api_uri">http://192.168.1.22:8080</string>
+<!--    <string name="base_api_uri">http://192.168.1.22:8080</string>-->
+    <string name="base_api_uri">http://192.168.43.216:8080</string>
     <string name="register_user_rating_api_uri">/register-user-rating</string>
     <string name="get_comment_api_uri">/get-comments</string>
     <string name="user_path">/api/users</string>
@@ -15,4 +16,5 @@
 
     <string name="login_username_hint">Username</string>
     <string name="login_password_hint">Password</string>
+    <string name="register_name_hint">Tên người dùng</string>
 </resources>
