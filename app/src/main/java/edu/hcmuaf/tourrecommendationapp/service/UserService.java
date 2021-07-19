@@ -1,18 +1,13 @@
 package edu.hcmuaf.tourrecommendationapp.service;
 
-import android.content.res.Resources;
-
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
-import edu.hcmuaf.tourrecommendationapp.R;
 import edu.hcmuaf.tourrecommendationapp.model.User;
 import edu.hcmuaf.tourrecommendationapp.util.ApiClient;
 import edu.hcmuaf.tourrecommendationapp.util.Utils;
-import okhttp3.FormBody;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class UserService {

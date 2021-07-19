@@ -13,6 +13,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import edu.hcmuaf.tourrecommendationapp.R;
@@ -23,10 +25,12 @@ public class RecycleViewCommentAdapter extends RecyclerView.Adapter<RecycleViewC
 
     private Context context;
     private List<Comment> comments;
+    DateFormat dateFormat;
 
     public RecycleViewCommentAdapter(Context context, List<Comment> comments) {
         this.context = context;
         this.comments = comments;
+        dateFormat = new SimpleDateFormat("dd/MM/yyyy");
     }
 
     @NonNull
@@ -42,7 +46,7 @@ public class RecycleViewCommentAdapter extends RecyclerView.Adapter<RecycleViewC
         holder.name.setText(comments.get(position).getUserName());
         holder.ratingBar.setRating(comments.get(position).getRating());
         holder.comment.setText(comments.get(position).getComment());
-        holder.date.setText(comments.get(position).getDate().toString());
+        holder.date.setText(dateFormat.format(comments.get(position).getDate()));
         Picasso.get().load(comments.get(position).getAvatar()).transform(new CropCircleTransformation()).into(holder.avatar);
 
     }

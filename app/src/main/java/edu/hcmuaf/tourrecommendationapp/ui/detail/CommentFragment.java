@@ -1,11 +1,17 @@
 package edu.hcmuaf.tourrecommendationapp.ui.detail;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -13,33 +19,11 @@ import android.os.StrictMode;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.RatingBar;
-import android.widget.TextView;
-
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.squareup.picasso.Picasso;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import edu.hcmuaf.tourrecommendationapp.R;
@@ -50,16 +34,15 @@ import edu.hcmuaf.tourrecommendationapp.util.SharedPrefs;
 
 public class CommentFragment extends Fragment {
 
-    private RecyclerView commentList;
-    private TextView userName;
-    private ImageView avatar;
-    private EditText comment;
-    private ImageButton sendButton;
+    private RecyclerView commentRecyclerView;
     private RatingBar ratingBar;
-    private List<Comment> comments = new ArrayList<Comment>();
+    private List<Comment> comments = new ArrayList<>();
     private long locationId;
+    private float userRating;
     private CommentService commentService;
     private User user;
+    private Context context;
+    private RecycleViewCommentAdapter adapter;
 
 
     public CommentFragment() {
@@ -90,45 +73,66 @@ public class CommentFragment extends Fragment {
             StrictMode.setThreadPolicy(policy);
         }
         user = SharedPrefs.getInstance().get("myInfo", User.class);
-        System.out.println(user.getId());
-        System.out.println(user.getUsername());
         commentService = CommentService.getInstance();
-        commentList = view.findViewById(R.id.comment_list);
-        userName = view.findViewById(R.id.user_name);
-        avatar = view.findViewById(R.id.comment_avatar);
-        comment = view.findViewById(R.id.comment_edit_text);
-        ratingBar = view.findViewById(R.id.rating_bar);
-        sendButton = view.findViewById(R.id.send_button);
-        userName.setText(user.getUsername());
-        Picasso.get().load(user.getThumbnail()).into(avatar);
-        RecycleViewCommentAdapter adapter = new RecycleViewCommentAdapter(this.getContext(), comments);
-        requestComment(adapter);
-        commentList.setAdapter(adapter);
-        commentList.setLayoutManager(new LinearLayoutManager(this.getContext()));
-        sendButton.setOnClickListener(new View.OnClickListener() {
+        commentRecyclerView = view.findViewById(R.id.comment_recycler_view);
+        ratingBar = view.findViewById(R.id.comment_rating_bar);
+        context = this.getContext();
+        adapter = new RecycleViewCommentAdapter(context, comments);
+        Comment currentUserComment = requestComment(adapter);
+        if (currentUserComment != null){
+            userRating = currentUserComment.getRating();
+            ratingBar.setRating(userRating);
+        }
+        commentRecyclerView.setAdapter(adapter);
+        commentRecyclerView.setLayoutManager(new LinearLayoutManager(context));
+        ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
             @Override
-            public void onClick(View v) {
-                String commentString = comment.getText().toString();
-                float rating = ratingBar.getRating();
-                try {
-                    commentService.registerComment(commentString, user.getId(), locationId, rating);
-                    requestComment(adapter);
-                } catch (ExecutionException | InterruptedException | IOException e) {
-                    e.printStackTrace();
+            public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
+                if(rating!=userRating) {
+                    Intent intent = new Intent(context, RatingActivity.class);
+                    intent.putExtra("userId", user.getId());
+                    intent.putExtra("locationId", locationId);
+                    intent.putExtra("rating", rating);
+                    if (currentUserComment != null) {
+                        intent.putExtra("comment", currentUserComment.getComment());
+                    }
+                    startForResult.launch(intent);
                 }
-                comment.setText("");
             }
         });
     }
 
-    private void requestComment(RecycleViewCommentAdapter adapter) {
+    ActivityResultLauncher<Intent> startForResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    switch (result.getResultCode()) {
+                        case Activity.RESULT_OK:
+                            Comment currentUserComment = requestComment(adapter);
+                            if(currentUserComment!=null) {
+                                userRating = currentUserComment.getRating();
+                                ratingBar.setRating(currentUserComment.getRating());
+                            }
+                            break;
+                        case Activity.RESULT_CANCELED:
+                            ratingBar.setRating(userRating);
+                            break;
+                    }
+                }
+            });
+
+
+    private Comment requestComment(RecycleViewCommentAdapter adapter) {
+        Comment currentUserComment = null;
         try {
             List<Comment> response = commentService.getComments(locationId);
+            currentUserComment = commentService.getCurrentUserComment(response);
             comments.clear();
             comments.addAll(response);
             adapter.notifyDataSetChanged();
         } catch (ExecutionException | InterruptedException | IOException e) {
             e.printStackTrace();
         }
+        return currentUserComment;
     }
 }

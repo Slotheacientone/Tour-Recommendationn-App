@@ -5,12 +5,9 @@ import android.content.Intent;
 import android.util.Log;
 
 import java.io.IOException;
-import java.time.Instant;
 import java.util.concurrent.ExecutionException;
 
 import edu.hcmuaf.tourrecommendationapp.LoginActivity;
-import edu.hcmuaf.tourrecommendationapp.MainActivity;
-import edu.hcmuaf.tourrecommendationapp.R;
 import edu.hcmuaf.tourrecommendationapp.dto.LoginRequest;
 import edu.hcmuaf.tourrecommendationapp.dto.LoginResponse;
 import edu.hcmuaf.tourrecommendationapp.dto.RefreshTokenRequest;
@@ -19,7 +16,6 @@ import edu.hcmuaf.tourrecommendationapp.dto.RegisterRequest;
 import edu.hcmuaf.tourrecommendationapp.model.User;
 import edu.hcmuaf.tourrecommendationapp.util.ApiClient;
 import edu.hcmuaf.tourrecommendationapp.util.App;
-import edu.hcmuaf.tourrecommendationapp.util.Resource;
 import edu.hcmuaf.tourrecommendationapp.util.SharedPrefs;
 import edu.hcmuaf.tourrecommendationapp.util.Utils;
 import okhttp3.Request;

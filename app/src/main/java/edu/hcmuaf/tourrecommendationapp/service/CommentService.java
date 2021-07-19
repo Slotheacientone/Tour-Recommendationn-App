@@ -1,22 +1,21 @@
 package edu.hcmuaf.tourrecommendationapp.service;
 
-import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import edu.hcmuaf.tourrecommendationapp.R;
+import edu.hcmuaf.tourrecommendationapp.dto.CommentRequest;
 import edu.hcmuaf.tourrecommendationapp.model.Comment;
+import edu.hcmuaf.tourrecommendationapp.model.User;
 import edu.hcmuaf.tourrecommendationapp.util.ApiClient;
 import edu.hcmuaf.tourrecommendationapp.util.Resource;
+import edu.hcmuaf.tourrecommendationapp.util.SharedPrefs;
 import edu.hcmuaf.tourrecommendationapp.util.Utils;
-import okhttp3.FormBody;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -35,21 +34,17 @@ public class CommentService {
         return mInstance;
     }
 
-    public boolean registerComment(String comment, long userId, long locationId, float locationRating) throws ExecutionException, InterruptedException, IOException {
+    public boolean registerComment(CommentRequest commentRequest) throws ExecutionException, InterruptedException, IOException {
         HttpUrl.Builder urlBuilder
                 = HttpUrl.parse(Resource.getString(R.string.base_api_uri)
                 + Resource.getString(R.string.comment_path)
                 + Resource.getString(R.string.register_user_rating_api_uri)).newBuilder();
         String url = urlBuilder.build().toString();
-        RequestBody body = new FormBody.Builder()
-                .add("userId", String.valueOf(userId))
-                .add("locationId", String.valueOf(locationId))
-                .add("locationRating", String.valueOf(locationRating))
-                .add("comment", comment)
-                .build();
+        RequestBody requestBody = RequestBody.create(Utils.toJson(commentRequest), ApiClient.JSON);
+        System.out.println(Utils.toJson(commentRequest));
         Request request = new Request.Builder()
                 .url(url)
-                .post(body)
+                .post(requestBody)
                 .build();
         Response response = ApiClient.sendAsync(request).get();
         if (response.code() == 200) {
@@ -71,6 +66,22 @@ public class CommentService {
         Response response = ApiClient.sendAsync(request).get();
         Type commentsType = new TypeToken<List<Comment>>() {
         }.getType();
-        return Utils.fromJson(response.body().string(),commentsType);
+        if (response.isSuccessful()) {
+            return Utils.fromJson(response.body().string(), commentsType);
+        }
+        return new ArrayList<Comment>();
+    }
+
+    public Comment getCurrentUserComment(List<Comment> comments) {
+        Comment result = null;
+        long userId = SharedPrefs.getInstance().get("myInfo", User.class).getId();
+        for (Comment comment : comments) {
+            if (comment.getUserId() == userId) {
+                result = comment;
+                comments.remove(comment);
+            }
+        }
+        comments.add(0,result);
+        return result;
     }
 }
