@@ -7,13 +7,23 @@
         android:title="@string/title_home" />
 
     <item
+        android:id="@+id/navigation_wishlist"
+        android:icon="@drawable/ic_baseline_wishlist_24"
+        android:title="Wishlist"/>
+
+    <item
+        android:id="@+id/navigation_saved_trip"
+        android:icon="@drawable/ic_baseline_saved_trip_24"
+        android:title="Saved Trip"/>
+
+    <item
         android:id="@+id/navigation_dashboard"
         android:icon="@drawable/ic_dashboard_black_24dp"
         android:title="@string/title_dashboard" />
 
-    <item
-        android:id="@+id/navigation_notifications"
-        android:icon="@drawable/ic_notifications_black_24dp"
-        android:title="@string/title_notifications" />
+<!--    <item-->
+<!--        android:id="@+id/navigation_notifications"-->
+<!--        android:icon="@drawable/ic_notifications_black_24dp"-->
+<!--        android:title="@string/title_notifications" />-->
 
 </menu>

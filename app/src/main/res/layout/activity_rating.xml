@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:id="@+id/rating_root_layout"
-    tools:context=".ui.detail.RatingActivity">
+    tools:context=".ui.locationDetail.RatingActivity">
 
 
     <TextView

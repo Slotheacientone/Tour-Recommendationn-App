@@ -9,15 +9,44 @@
     <string name="hello_blank_fragment">Empty</string>
     <!-- Uri -->
     <string name="base_api_uri">http://192.168.1.22:8080</string>
-<!--    <string name="base_api_uri">http://192.168.43.216:8080</string>-->
+    <!--    <string name="base_api_uri">http://192.168.43.216:8080</string>-->
+
+    <!-- User api -->
     <string name="register_user_rating_api_uri">/register-user-rating</string>
-    <string name="get_comment_api_uri">/get-comments</string>
     <string name="user_path">/api/users</string>
-    <string name="comment_path">/api/comment</string>
-    <string name="wishlist_path">/api/wishlist</string>
-    <string name="add_location_to_wishlist_uri">/add-location-to-wishlist</string>
+
+    <!-- Rating api -->
+    <string name="get_rating_api_uri">/get-ratings</string>
+    <string name="rating_api_path">/api/rating</string>
+    <string name="delete_rating_api_uri">/delete-rating</string>
+
+    <!-- Wishlist api -->
+    <string name="wishlist_api_path">/api/wishlist</string>
+    <string name="add_location_to_wishlist_api_uri">/add-location-to-wishlist</string>
+    <string name="delete_location_from_wishlist_api_uri">/delete-location-from-wishlist</string>
+    <string name="get_wishlist_api_uri">/get-wishlist</string>
+
+    <!-- Saved trip api -->
+    <string name="saved_trip_api_path">/api/save-trip</string>
+    <string name="save_trip_api_uri">/save-trip</string>
+    <string name="delete_saved_trip_api_uri">/delete-saved-trip</string>
+    <string name="get_saved_trip_list_api_uri">/get-saved_trip_list</string>
+    <string name="get_saved_trip_api_uri">/get-saved_trip</string>
+
+    <!-- Recommendate api -->
+    <string name="recommendate_api_path">/api/saved-trip</string>
+    <string name="get_recommendation_api_uri">/save-trip</string>
 
     <string name="login_username_hint">Username</string>
     <string name="login_password_hint">Password</string>
     <string name="register_name_hint">Tên người dùng</string>
+    <string name="title_activity_recommendation">RecommendationActivity</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
 </resources>

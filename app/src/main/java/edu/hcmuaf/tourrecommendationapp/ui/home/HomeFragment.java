@@ -6,18 +6,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 
 import org.jetbrains.annotations.NotNull;
 
 import edu.hcmuaf.tourrecommendationapp.R;
-import edu.hcmuaf.tourrecommendationapp.ui.detail.LocationDetailActivity;
+import edu.hcmuaf.tourrecommendationapp.model.Location;
+import edu.hcmuaf.tourrecommendationapp.ui.locationDetail.LocationDetailActivity;
 
 public class HomeFragment extends Fragment {
 
@@ -36,11 +34,13 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getContext(), LocationDetailActivity.class);
-                intent.putExtra("locationId", (long) 957);
-                intent.putExtra("locationName", "Đồi cát trắng");
-                intent.putExtra("locationImage", "https://media-cdn.tripadvisor.com/media/photo-o/12/f0/22/ff/img-20180512-213049-591.jpg");
-                intent.putExtra("rating", (float) 4);
-                intent.putExtra("numberOfPeopleRating", 3265);
+                Location location = new Location();
+                location.setLocationId(957);
+                location.setLocationName("Đồi cát trắng");
+                location.setLocationImageUrl("https://media-cdn.tripadvisor.com/media/photo-o/12/f0/22/ff/img-20180512-213049-591.jpg");
+                location.setRatings(4);
+                location.setNumberOfPeopleRating(81);
+                intent.putExtra("location", location);
                 startActivity(intent);
             }
         });

@@ -1,4 +1,4 @@
-package edu.hcmuaf.tourrecommendationapp.ui.detail;
+package edu.hcmuaf.tourrecommendationapp.ui.locationDetail;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -18,18 +18,18 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 import edu.hcmuaf.tourrecommendationapp.R;
-import edu.hcmuaf.tourrecommendationapp.model.Comment;
+import edu.hcmuaf.tourrecommendationapp.model.Rating;
 import jp.wasabeef.picasso.transformations.CropCircleTransformation;
 
-public class RecycleViewCommentAdapter extends RecyclerView.Adapter<RecycleViewCommentAdapter.RecycleViewCommentHolder> {
+public class RecycleViewRatingAdapter extends RecyclerView.Adapter<RecycleViewRatingAdapter.RecycleViewCommentHolder> {
 
     private Context context;
-    private List<Comment> comments;
+    private List<Rating> ratings;
     DateFormat dateFormat;
 
-    public RecycleViewCommentAdapter(Context context, List<Comment> comments) {
+    public RecycleViewRatingAdapter(Context context, List<Rating> ratings) {
         this.context = context;
-        this.comments = comments;
+        this.ratings = ratings;
         dateFormat = new SimpleDateFormat("dd/MM/yyyy");
     }
 
@@ -37,23 +37,23 @@ public class RecycleViewCommentAdapter extends RecyclerView.Adapter<RecycleViewC
     @Override
     public RecycleViewCommentHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
-        View view = layoutInflater.inflate(R.layout.comment_item, parent, false);
+        View view = layoutInflater.inflate(R.layout.rating_item, parent, false);
         return new RecycleViewCommentHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecycleViewCommentHolder holder, int position) {
-        holder.name.setText(comments.get(position).getUserName());
-        holder.ratingBar.setRating(comments.get(position).getRating());
-        holder.comment.setText(comments.get(position).getComment());
-        holder.date.setText(dateFormat.format(comments.get(position).getDate()));
-        Picasso.get().load(comments.get(position).getAvatar()).transform(new CropCircleTransformation()).into(holder.avatar);
+        holder.name.setText(ratings.get(position).getUserName());
+        holder.ratingBar.setRating(ratings.get(position).getRating());
+        holder.comment.setText(ratings.get(position).getComment());
+        holder.date.setText(dateFormat.format(ratings.get(position).getDate()));
+        Picasso.get().load(ratings.get(position).getAvatar()).transform(new CropCircleTransformation()).into(holder.avatar);
 
     }
 
     @Override
     public int getItemCount() {
-        return comments.size();
+        return ratings.size();
     }
 
     class RecycleViewCommentHolder extends RecyclerView.ViewHolder {
@@ -66,11 +66,11 @@ public class RecycleViewCommentAdapter extends RecyclerView.Adapter<RecycleViewC
 
         public RecycleViewCommentHolder(@NonNull View itemView) {
             super(itemView);
-            name = itemView.findViewById(R.id.comment_name);
-            avatar = itemView.findViewById(R.id.comment_item_avatar);
-            ratingBar = itemView.findViewById(R.id.item_rating_bar);
-            comment = itemView.findViewById(R.id.comment);
-            date = itemView.findViewById(R.id.comment_date);
+            name = itemView.findViewById(R.id.rating_item_user_name);
+            avatar = itemView.findViewById(R.id.rating_item_user_avatar);
+            ratingBar = itemView.findViewById(R.id.rating_item_rating_bar);
+            comment = itemView.findViewById(R.id.rating_item_comment);
+            date = itemView.findViewById(R.id.rating_item_date);
         }
 
     }

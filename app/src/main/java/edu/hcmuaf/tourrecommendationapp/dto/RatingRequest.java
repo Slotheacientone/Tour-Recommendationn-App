@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CommentRequest {
+public class RatingRequest {
     private long userId;
     private long locationId;
     private float rating;

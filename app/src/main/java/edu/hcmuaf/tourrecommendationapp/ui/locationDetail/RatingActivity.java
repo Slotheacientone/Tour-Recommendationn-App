@@ -1,14 +1,11 @@
-package edu.hcmuaf.tourrecommendationapp.ui.detail;
+package edu.hcmuaf.tourrecommendationapp.ui.locationDetail;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.RatingBar;
 import android.widget.Toast;
@@ -17,8 +14,8 @@ import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 import edu.hcmuaf.tourrecommendationapp.R;
-import edu.hcmuaf.tourrecommendationapp.dto.CommentRequest;
-import edu.hcmuaf.tourrecommendationapp.service.CommentService;
+import edu.hcmuaf.tourrecommendationapp.dto.RatingRequest;
+import edu.hcmuaf.tourrecommendationapp.service.RatingService;
 
 public class RatingActivity extends AppCompatActivity {
 
@@ -27,7 +24,7 @@ public class RatingActivity extends AppCompatActivity {
     private long userId;
     private long locationId;
     private String comment;
-    private CommentService commentService;
+    private RatingService ratingService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +32,7 @@ public class RatingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_rating);
         Bundle ratingBundle = getIntent().getExtras();
         commentEditText = findViewById(R.id.comment_edit_text);
-        commentService = CommentService.getInstance();
+        ratingService = RatingService.getInstance();
         getSupportActionBar().setTitle("Rating");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         ratingBar = findViewById(R.id.rating_bar);
@@ -80,9 +77,9 @@ public class RatingActivity extends AppCompatActivity {
     public boolean rate() {
         boolean success = false;
         try {
-            CommentRequest commentRequest = new CommentRequest(userId,
+            RatingRequest ratingRequest = new RatingRequest(userId,
                     locationId, ratingBar.getRating(), commentEditText.getText().toString());
-            success = commentService.registerComment(commentRequest);
+            success = ratingService.registerComment(ratingRequest);
         } catch (ExecutionException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {

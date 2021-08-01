@@ -1,7 +1,8 @@
-package edu.hcmuaf.tourrecommendationapp.ui.detail;
+package edu.hcmuaf.tourrecommendationapp.ui.locationDetail;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.view.Menu;
@@ -16,8 +17,9 @@ import com.squareup.picasso.Picasso;
 import java.util.concurrent.ExecutionException;
 
 import edu.hcmuaf.tourrecommendationapp.R;
+import edu.hcmuaf.tourrecommendationapp.model.Location;
 import edu.hcmuaf.tourrecommendationapp.model.User;
-import edu.hcmuaf.tourrecommendationapp.service.LocationService;
+import edu.hcmuaf.tourrecommendationapp.service.WishlistService;
 import edu.hcmuaf.tourrecommendationapp.util.SharedPrefs;
 
 public class LocationDetailActivity extends AppCompatActivity {
@@ -26,12 +28,12 @@ public class LocationDetailActivity extends AppCompatActivity {
     private TextView locationName;
     private RatingBar locationRatingBar;
     private TextView numberOfPeopleRating;
-    private LocationService locationService;
+    private WishlistService wishlistService;
 
     /**
      * Location id.
      */
-    private long locationId;
+    private Location location;
     private User user;
 
     @Override
@@ -45,27 +47,27 @@ public class LocationDetailActivity extends AppCompatActivity {
             StrictMode.setThreadPolicy(policy);
         }
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        Bundle locationBundle = getIntent().getExtras();
-        setTitle(locationBundle.getString("locationName"));
-        locationId = locationBundle.getLong("locationId");
+        Intent intent = getIntent();
+        Location location = (Location) intent.getSerializableExtra("location");
+        setTitle(location.getLocationName());
+
         if (savedInstanceState == null) {
             Bundle commentBundle = new Bundle();
-            commentBundle.putLong("locationId", locationId);
+            commentBundle.putLong("locationId", location.getLocationId());
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.comment_fragment_container_view, CommentFragment.class, commentBundle)
+                    .add(R.id.rating_fragment_container_view, RatingsFragment.class, commentBundle)
                     .commit();
         }
         user = SharedPrefs.getInstance().get("myInfo", User.class);
-        locationService = LocationService.getInstance();
+        wishlistService = WishlistService.getInstance();
         locationImage = findViewById(R.id.location_image);
         locationName = findViewById(R.id.location_name);
         locationRatingBar = findViewById(R.id.location_rating_bar);
         numberOfPeopleRating = findViewById(R.id.number_of_people_rating);
-        locationName.setText(locationBundle.getString("locationName"));
-        locationRatingBar.setRating(locationBundle.getFloat("rating"));
-        numberOfPeopleRating.setText(String.valueOf(locationBundle.getInt("numberOfPeopleRating")));
-        Picasso.get().load(locationBundle.getString("locationImage")).into(locationImage);
-
+        locationName.setText(location.getLocationName());
+        locationRatingBar.setRating(location.getRatings());
+        numberOfPeopleRating.setText(String.valueOf(location.getNumberOfPeopleRating()));
+        Picasso.get().load(location.getLocationImageUrl()).into(locationImage);
     }
 
     // Menu icons are inflated just as they were with actionbar
@@ -85,7 +87,7 @@ public class LocationDetailActivity extends AppCompatActivity {
             case R.id.wishlist_menu_item:
                 boolean success = false;
                 try {
-                    success = locationService.addLocationToWishlist(user.getId(), locationId);
+                    success = wishlistService.addLocationToWishlist(user.getId(), location.getLocationId());
                 } catch (ExecutionException e) {
                     e.printStackTrace();
                 } catch (InterruptedException e) {
