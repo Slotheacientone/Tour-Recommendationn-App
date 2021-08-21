@@ -12,14 +12,23 @@
         android:layout_height="match_parent">
 
 
+        <ToggleButton
+            android:id="@+id/toggle_sort_recommen_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textOn="Phù hợp nhất"
+            android:textOff="Gần nhất"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recommend_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="12dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/toggle_sort_recommen_button" />
 
 
         <TextView

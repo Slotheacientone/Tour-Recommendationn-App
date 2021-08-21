@@ -4,12 +4,8 @@ import java.io.Serializable;
 import java.util.List;
 
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 @Data
-@Setter
-@Getter
 public class SavedTrip implements Serializable {
     private long userId;
     private long savedTripId;

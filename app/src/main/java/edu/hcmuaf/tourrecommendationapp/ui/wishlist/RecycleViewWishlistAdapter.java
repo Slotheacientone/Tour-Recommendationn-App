@@ -34,29 +34,22 @@ public class RecycleViewWishlistAdapter extends RecyclerView.Adapter<RecycleView
 
     private Context context;
     private List<Location> wishList;
-    private WishlistService wishlistService;
     private User user;
+    private WishlistService wishlistService;
+    private RecycleViewWishlistAdapter adapter;
 
-    public RecycleViewWishlistAdapter(Context context) {
+    public RecycleViewWishlistAdapter(Context context, List<Location> wishList) {
         this.context = context;
-        int SDK_INT = android.os.Build.VERSION.SDK_INT;
-        if (SDK_INT > 8) {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
-                    .permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-        }
-        user = SharedPrefs.getInstance().get("myInfo", User.class);
+//        int SDK_INT = android.os.Build.VERSION.SDK_INT;
+//        if (SDK_INT > 8) {
+//            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+//                    .permitAll().build();
+//            StrictMode.setThreadPolicy(policy);
+//        }
+        this.wishList = wishList;
+        adapter = this;
         wishlistService = WishlistService.getInstance();
-        try {
-            wishList = wishlistService.getWishlist(user.getId());
-            System.out.println(wishList);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        user = SharedPrefs.getInstance().get("myInfo", User.class);
     }
 
     @NonNull
@@ -72,15 +65,14 @@ public class RecycleViewWishlistAdapter extends RecyclerView.Adapter<RecycleView
         holder.locationName.setText(wishList.get(position).getLocationName());
         holder.locationRatingBar.setRating(wishList.get(position).getRatings());
         holder.locationNumberOfPeopleRating.setText(String.valueOf(wishList.get(position).getNumberOfPeopleRating()));
-        holder.deleteButton.setOnClickListener(new View.OnClickListener() {
-            @SneakyThrows
-            @Override
-            public void onClick(View v) {
-                wishlistService.deleteLocationFromWishlist(user.getId(),wishList.get(holder.getAdapterPosition()).getLocationId());
-                wishList = wishlistService.getWishlist(user.getId());
-                notifyDataChanged();
-            }
-        });
+//        holder.deleteButton.setOnClickListener(new View.OnClickListener() {
+//            @SneakyThrows
+//            @Override
+//            public void onClick(View v) {
+//                wishlistService.deleteLocationFromWishlist(user.getId(),wishList.get(holder.getAdapterPosition()).getLocationId());
+//                wishlistService.getWishlist(user.getId());
+//            }
+//        });
         holder.locationItemCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -92,9 +84,7 @@ public class RecycleViewWishlistAdapter extends RecyclerView.Adapter<RecycleView
         Picasso.get().load(wishList.get(position).getLocationImageUrl()).transform(new CropSquareTransformation()).into(holder.locationImage);
 
     }
-    public void notifyDataChanged(){
-        this.notifyDataSetChanged();
-    }
+
 
     @Override
     public int getItemCount() {

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import edu.hcmuaf.tourrecommendationapp.R;
+import edu.hcmuaf.tourrecommendationapp.model.ApiResponse;
 import edu.hcmuaf.tourrecommendationapp.model.SavedTrip;
 import edu.hcmuaf.tourrecommendationapp.util.ApiClient;
 import edu.hcmuaf.tourrecommendationapp.util.Resource;
@@ -16,7 +17,6 @@ import edu.hcmuaf.tourrecommendationapp.util.Utils;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.RequestBody;
-import okhttp3.Response;
 
 public class SavedTripService {
     private static SavedTripService mInstance;
@@ -41,8 +41,8 @@ public class SavedTripService {
                 .url(url)
                 .post(requestBody)
                 .build();
-        Response response = ApiClient.sendAsync(request).get();
-        if (response.code() == 200) {
+        ApiResponse response = ApiClient.sendAsyncTemp(request);
+        if (response.getCode() == 200) {
             return true;
         }
         return false;
@@ -58,11 +58,11 @@ public class SavedTripService {
         Request request = new Request.Builder()
                 .url(url)
                 .build();
-        Response response = ApiClient.sendAsync(request).get();
+        ApiResponse response = ApiClient.sendAsyncTemp(request);
         Type savedTripListType = new TypeToken<List<SavedTrip>>() {
         }.getType();
         if (response!=null && response.isSuccessful()) {
-            return Utils.fromJson(response.body().string(), savedTripListType);
+            return Utils.fromJson(response.getBody(), savedTripListType);
         }
         return new ArrayList<SavedTrip>();
     }
@@ -77,8 +77,8 @@ public class SavedTripService {
         Request request = new Request.Builder()
                 .url(url)
                 .build();
-        Response response = ApiClient.sendAsync(request).get();
-        return Utils.fromJson(response.body().string(), SavedTrip.class);
+        ApiResponse response = ApiClient.sendAsyncTemp(request);
+        return Utils.fromJson(response.getBody(), SavedTrip.class);
     }
 
     public boolean deleteSavedTrip(long savedTripId) throws ExecutionException, InterruptedException {
@@ -91,8 +91,8 @@ public class SavedTripService {
         Request request = new Request.Builder()
                 .url(url)
                 .build();
-        Response response = ApiClient.sendAsync(request).get();
-        if (response.code() == 200) {
+        ApiResponse response = ApiClient.sendAsyncTemp(request);
+        if (response.getCode() == 200) {
             return true;
         }
         return false;

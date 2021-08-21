@@ -12,28 +12,30 @@ import android.view.MenuItem;
 
 import edu.hcmuaf.tourrecommendationapp.R;
 import edu.hcmuaf.tourrecommendationapp.model.SavedTrip;
+import edu.hcmuaf.tourrecommendationapp.ui.navigation.MapsActivity;
 
 public class SavedTripDetailActivity extends AppCompatActivity {
 
     private RecyclerView savedTripDetailRecycleView;
     private RecycleViewSavedTripDetailAdapter recycleViewSavedTripDetailAdapter;
+    private SavedTrip savedTrip;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_saved_trip_detail);
-        int SDK_INT = android.os.Build.VERSION.SDK_INT;
-        if (SDK_INT > 8) {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
-                    .permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-        }
+//        int SDK_INT = android.os.Build.VERSION.SDK_INT;
+//        if (SDK_INT > 8) {
+//            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+//                    .permitAll().build();
+//            StrictMode.setThreadPolicy(policy);
+//        }
         savedTripDetailRecycleView = findViewById(R.id.saved_trip_location_recycle_view);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("Saved trip detail");
         Intent intent = getIntent();
-        SavedTrip savedTrip = (SavedTrip) intent.getSerializableExtra("savedTrip");
-        recycleViewSavedTripDetailAdapter = new RecycleViewSavedTripDetailAdapter(this,savedTrip.getSavedTripLocations(), savedTrip.getSavedTripId());
+        savedTrip = (SavedTrip) intent.getSerializableExtra("savedTrip");
+        recycleViewSavedTripDetailAdapter = new RecycleViewSavedTripDetailAdapter(this, savedTrip.getSavedTripLocations(), savedTrip.getSavedTripId());
         savedTripDetailRecycleView.setAdapter(recycleViewSavedTripDetailAdapter);
         savedTripDetailRecycleView.setLayoutManager(new LinearLayoutManager(this));
     }
@@ -53,6 +55,9 @@ public class SavedTripDetailActivity extends AppCompatActivity {
                 finish();
                 return true;
             case R.id.find_path_menu_item:
+                Intent intent = new Intent(this, MapsActivity.class);
+                intent.putExtra("savedTrip", savedTrip);
+                startActivity(intent);
                return true;
         }
         return super.onOptionsItemSelected(item);

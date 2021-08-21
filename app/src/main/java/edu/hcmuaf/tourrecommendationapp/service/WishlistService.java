@@ -6,9 +6,11 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import edu.hcmuaf.tourrecommendationapp.R;
+import edu.hcmuaf.tourrecommendationapp.model.ApiResponse;
 import edu.hcmuaf.tourrecommendationapp.model.Location;
 import edu.hcmuaf.tourrecommendationapp.util.ApiClient;
 import edu.hcmuaf.tourrecommendationapp.util.Resource;
@@ -20,7 +22,7 @@ import okhttp3.Response;
 public class WishlistService {
 
     private static WishlistService mInstance;
-
+    private final static String TAG = "Wishlist service";
     private WishlistService() {
     }
 
@@ -41,14 +43,16 @@ public class WishlistService {
         Request request = new Request.Builder()
                 .url(url)
                 .build();
-        Response response = ApiClient.sendAsync(request).get();
-        if (response.code() == 200) {
+        ApiResponse response = ApiClient.sendAsyncTemp(request);
+        CompletableFuture<Response> r = ApiClient.sendAsync(request);
+
+        if (response.getCode() == 200) {
             return true;
         }
         return false;
     }
 
-    public List<Location> getWishlist(long userId) throws IOException, ExecutionException, InterruptedException {
+    public List<Location> getWishlist(long userId) throws IOException{
         HttpUrl.Builder urlBuilder
                 = HttpUrl.parse(Resource.getString(R.string.base_api_uri)
                 + Resource.getString(R.string.wishlist_api_path)
@@ -58,7 +62,7 @@ public class WishlistService {
         Request request = new Request.Builder()
                 .url(url)
                 .build();
-        Response response = ApiClient.sendAsync(request).get();
+        Response response = ApiClient.getClient().newCall(request).execute();
         Type wishlistType = new TypeToken<List<Location>>() {
         }.getType();
         if (response!=null && response.isSuccessful()) {
@@ -78,11 +82,32 @@ public class WishlistService {
         Request request = new Request.Builder()
                 .url(url)
                 .build();
-        Response response = ApiClient.sendAsync(request).get();
-        if (response.code() == 200) {
+        ApiResponse response = ApiClient.sendAsyncTemp(request);
+        if (response.getCode() == 200) {
             return true;
         }
         return false;
     }
 
+    public List<Location> getWishlist(long userId, double latitude, double longitude) throws ExecutionException, InterruptedException, IOException {
+        HttpUrl.Builder urlBuilder
+                = HttpUrl.parse(Resource.getString(R.string.base_api_uri)
+                + Resource.getString(R.string.wishlist_api_path)
+                + Resource.getString(R.string.get_wishlist_api_uri)).newBuilder();
+        urlBuilder.addQueryParameter("userId", String.valueOf(userId));
+        urlBuilder.addQueryParameter("latitude", String.valueOf(latitude));
+        urlBuilder.addQueryParameter("longitude", String.valueOf(longitude));
+        String url = urlBuilder.build().toString();
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        ApiResponse response = ApiClient.sendAsyncTemp(request);
+        Type wishlistType = new TypeToken<List<Location>>() {
+        }.getType();
+        if (response!=null && response.isSuccessful()) {
+            return Utils.fromJson(response.getBody(), wishlistType);
+        }
+        return new ArrayList<Location>();
+
+    }
 }

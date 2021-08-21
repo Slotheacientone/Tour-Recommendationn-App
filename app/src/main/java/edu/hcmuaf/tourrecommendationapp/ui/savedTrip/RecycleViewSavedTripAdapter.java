@@ -33,12 +33,12 @@ public class RecycleViewSavedTripAdapter extends RecyclerView.Adapter<RecycleVie
 
     public RecycleViewSavedTripAdapter(Context context) {
         this.context = context;
-        int SDK_INT = android.os.Build.VERSION.SDK_INT;
-        if (SDK_INT > 8) {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
-                    .permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-        }
+//        int SDK_INT = android.os.Build.VERSION.SDK_INT;
+//        if (SDK_INT > 8) {
+//            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+//                    .permitAll().build();
+//            StrictMode.setThreadPolicy(policy);
+//        }
         user = SharedPrefs.getInstance().get("myInfo", User.class);
         savedTripService = SavedTripService.getInstance();
         try {

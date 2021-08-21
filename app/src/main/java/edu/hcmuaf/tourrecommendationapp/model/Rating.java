@@ -1,14 +1,10 @@
 package edu.hcmuaf.tourrecommendationapp.model;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.Date;
 
+import lombok.Data;
+
 @Data
-@Setter
-@Getter
 public class Rating {
     /** User id. */
     private long userId;

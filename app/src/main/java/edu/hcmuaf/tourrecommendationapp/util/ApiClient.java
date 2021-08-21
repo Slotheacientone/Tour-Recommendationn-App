@@ -12,11 +12,15 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import edu.hcmuaf.tourrecommendationapp.filter.AuthInterceptor;
+import edu.hcmuaf.tourrecommendationapp.model.ApiResponse;
 import lombok.extern.log4j.Log4j;
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import okhttp3.logging.HttpLoggingInterceptor;
 
 public class ApiClient {
@@ -35,6 +39,10 @@ public class ApiClient {
                 .build();
     }
 
+    public static OkHttpClient getClient(){
+        return client;
+    }
+
     public static CompletableFuture<Response> sendAsync(Request request) {
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -46,5 +54,27 @@ public class ApiClient {
             return null;
         }, executor);
     }
+
+    public static ApiResponse sendAsyncTemp(Request request) {
+        final ApiResponse[] apiResponses = {null};
+        Call call = client.newCall(request);
+        Log.i(TAG, "Send request: " + request);
+        call.enqueue(new Callback() {
+            public void onResponse(Call call, Response response) throws IOException {
+                apiResponses[0] = new ApiResponse();
+                apiResponses[0].setBody(response.body().string());
+                apiResponses[0].setCode(response.code());
+                apiResponses[0].setSuccessful(response.isSuccessful());
+            }
+
+            public void onFailure(Call call, IOException exception) {
+                apiResponses[0] = null;
+                Log.e(TAG, exception.getMessage());
+            }
+        });
+        return apiResponses[0];
+    }
+
+
 
 }

@@ -36,31 +36,10 @@ public class RecycleViewRecommendationAdapter extends RecyclerView.Adapter<Recyc
 
     private Context context;
     private List<Location> recommendations;
-    private RecommendateService recommendateService;
-    private User user;
-    private List<Location> selectedLocations;
 
-    public RecycleViewRecommendationAdapter(Context context, List<Location> selectedLocations) {
+    public RecycleViewRecommendationAdapter(Context context, List<Location> recommendations) {
         this.context = context;
-        this.selectedLocations = selectedLocations;
-        int SDK_INT = android.os.Build.VERSION.SDK_INT;
-        if (SDK_INT > 8) {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
-                    .permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-        }
-        user = SharedPrefs.getInstance().get("myInfo", User.class);
-        recommendateService = RecommendateService.getInstance();
-        try {
-            recommendations = recommendateService.getRecommendations(user.getId());
-            System.out.println(recommendations);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        this.recommendations = recommendations;
     }
 
     @NonNull
@@ -76,15 +55,18 @@ public class RecycleViewRecommendationAdapter extends RecyclerView.Adapter<Recyc
         holder.locationName.setText(recommendations.get(position).getLocationName());
         holder.locationRatingBar.setRating(recommendations.get(position).getRatings());
         holder.locationNumberOfPeopleRating.setText(String.valueOf(recommendations.get(position).getNumberOfPeopleRating()));
+        if(recommendations.get(position).getDistance()!=-1) {
+            holder.locationDistance.setText("Khoảng cách: " + recommendations.get(position).getDistance());
+        }
         holder.deleteButton.setVisibility(View.GONE);
         holder.locationItemCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(selectedLocations.contains(recommendations.get(holder.getAdapterPosition()))){
-                    selectedLocations.remove(recommendations.get(holder.getAdapterPosition()));
+                if(!recommendations.get(holder.getAdapterPosition()).isSelected()){
+                    recommendations.get(holder.getAdapterPosition()).setSelected(true);
                     v.setBackgroundColor(Color.GRAY);
-                }else {
-                    selectedLocations.add(recommendations.get(holder.getAdapterPosition()));
+                }else{
+                    recommendations.get(holder.getAdapterPosition()).setSelected(false);
                     v.setBackgroundColor(Color.WHITE);
                 }
             }
@@ -115,6 +97,7 @@ public class RecycleViewRecommendationAdapter extends RecyclerView.Adapter<Recyc
         private RatingBar locationRatingBar;
         private TextView locationNumberOfPeopleRating;
         private ImageButton deleteButton;
+        private TextView locationDistance;
         private CardView locationItemCardView;
 
         public RecycleViewRecommendationHolder(@NonNull View itemView) {
@@ -124,6 +107,7 @@ public class RecycleViewRecommendationAdapter extends RecyclerView.Adapter<Recyc
             locationRatingBar = itemView.findViewById(R.id.location_item_rating_bar);
             locationNumberOfPeopleRating = itemView.findViewById(R.id.location_item_number_of_people_rating);
             deleteButton = itemView.findViewById(R.id.delete_location_item_button);
+            locationDistance = itemView.findViewById(R.id.location_distance);
             locationItemCardView = itemView.findViewById(R.id.location_item_card_view);
         }
 

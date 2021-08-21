@@ -13,6 +13,7 @@ import edu.hcmuaf.tourrecommendationapp.dto.LoginResponse;
 import edu.hcmuaf.tourrecommendationapp.dto.RefreshTokenRequest;
 import edu.hcmuaf.tourrecommendationapp.dto.RefreshTokenResponse;
 import edu.hcmuaf.tourrecommendationapp.dto.RegisterRequest;
+import edu.hcmuaf.tourrecommendationapp.model.ApiResponse;
 import edu.hcmuaf.tourrecommendationapp.model.User;
 import edu.hcmuaf.tourrecommendationapp.util.ApiClient;
 import edu.hcmuaf.tourrecommendationapp.util.App;
@@ -102,7 +103,7 @@ public class AuthService {
                 .post(requestBody)
                 .build();
 
-        Response response = ApiClient.sendAsync(request).get();
+        ApiResponse response = ApiClient.sendAsyncTemp(request);
         if (response == null) {
             throw new IOException("Send request fail: " + request);
         }

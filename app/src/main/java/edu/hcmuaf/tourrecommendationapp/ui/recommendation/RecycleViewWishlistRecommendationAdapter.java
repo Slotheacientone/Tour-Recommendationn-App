@@ -35,31 +35,11 @@ public class RecycleViewWishlistRecommendationAdapter extends RecyclerView.Adapt
 
     private Context context;
     private List<Location> wishlist;
-    private WishlistService wishlistService;
-    private User user;
-    private List<Location> selectedLocations;
 
-    public RecycleViewWishlistRecommendationAdapter(Context context, List<Location> selectedLocations) {
+
+    public RecycleViewWishlistRecommendationAdapter(Context context, List<Location> wishlist) {
         this.context = context;
-        this.selectedLocations = selectedLocations;
-        int SDK_INT = android.os.Build.VERSION.SDK_INT;
-        if (SDK_INT > 8) {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
-                    .permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-        }
-        user = SharedPrefs.getInstance().get("myInfo", User.class);
-        wishlistService = WishlistService.getInstance();
-        try {
-            wishlist = wishlistService.getWishlist(user.getId());
-            System.out.println(wishlist);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        this.wishlist = wishlist;
     }
 
     @NonNull
@@ -76,15 +56,18 @@ public class RecycleViewWishlistRecommendationAdapter extends RecyclerView.Adapt
         holder.locationRatingBar.setRating(wishlist.get(position).getRatings());
         holder.locationNumberOfPeopleRating.setText(String.valueOf(wishlist.get(position).getNumberOfPeopleRating()));
         holder.deleteButton.setVisibility(View.GONE);
+        if(wishlist.get(position).getDistance()!=-1) {
+            holder.locationDistance.setText("Khoảng cách: " + wishlist.get(position).getDistance());
+        }
         holder.locationItemCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(selectedLocations.contains(wishlist.get(holder.getAdapterPosition()))){
-                    selectedLocations.remove(wishlist.get(holder.getAdapterPosition()));
-                    v.setBackgroundColor(Color.WHITE);
-                }else {
-                    selectedLocations.add(wishlist.get(holder.getAdapterPosition()));
+                if(!wishlist.get(holder.getAdapterPosition()).isSelected()){
+                    wishlist.get(holder.getAdapterPosition()).setSelected(true);
                     v.setBackgroundColor(Color.GRAY);
+                }else{
+                    wishlist.get(holder.getAdapterPosition()).setSelected(false);
+                    v.setBackgroundColor(Color.WHITE);
                 }
             }
         });
@@ -114,6 +97,7 @@ public class RecycleViewWishlistRecommendationAdapter extends RecyclerView.Adapt
         private RatingBar locationRatingBar;
         private TextView locationNumberOfPeopleRating;
         private ImageButton deleteButton;
+        private TextView locationDistance;
         private CardView locationItemCardView;
 
         public RecycleViewWishlistRecommedationHolder(@NonNull View itemView) {
@@ -123,6 +107,7 @@ public class RecycleViewWishlistRecommendationAdapter extends RecyclerView.Adapt
             locationRatingBar = itemView.findViewById(R.id.location_item_rating_bar);
             locationNumberOfPeopleRating = itemView.findViewById(R.id.location_item_number_of_people_rating);
             deleteButton = itemView.findViewById(R.id.delete_location_item_button);
+            locationDistance = itemView.findViewById(R.id.location_distance);
             locationItemCardView = itemView.findViewById(R.id.location_item_card_view);
         }
 
