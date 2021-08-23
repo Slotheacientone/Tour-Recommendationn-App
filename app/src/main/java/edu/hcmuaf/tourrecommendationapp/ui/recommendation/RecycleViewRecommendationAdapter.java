@@ -3,7 +3,6 @@ package edu.hcmuaf.tourrecommendationapp.ui.recommendation;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.os.StrictMode;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,19 +17,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import edu.hcmuaf.tourrecommendationapp.R;
 import edu.hcmuaf.tourrecommendationapp.model.Location;
-import edu.hcmuaf.tourrecommendationapp.model.User;
-import edu.hcmuaf.tourrecommendationapp.service.RecommendateService;
-import edu.hcmuaf.tourrecommendationapp.service.WishlistService;
 import edu.hcmuaf.tourrecommendationapp.ui.locationDetail.LocationDetailActivity;
-import edu.hcmuaf.tourrecommendationapp.util.SharedPrefs;
 import jp.wasabeef.picasso.transformations.CropSquareTransformation;
-import lombok.SneakyThrows;
 
 public class RecycleViewRecommendationAdapter extends RecyclerView.Adapter<RecycleViewRecommendationAdapter.RecycleViewRecommendationHolder> {
 
@@ -55,17 +47,17 @@ public class RecycleViewRecommendationAdapter extends RecyclerView.Adapter<Recyc
         holder.locationName.setText(recommendations.get(position).getLocationName());
         holder.locationRatingBar.setRating(recommendations.get(position).getRatings());
         holder.locationNumberOfPeopleRating.setText(String.valueOf(recommendations.get(position).getNumberOfPeopleRating()));
-        if(recommendations.get(position).getDistance()!=-1) {
+        if (recommendations.get(position).getDistance() != -1 && recommendations.get(position).getDistance() != 0) {
             holder.locationDistance.setText("Khoảng cách: " + recommendations.get(position).getDistance());
         }
         holder.deleteButton.setVisibility(View.GONE);
         holder.locationItemCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!recommendations.get(holder.getAdapterPosition()).isSelected()){
+                if (!recommendations.get(holder.getAdapterPosition()).isSelected()) {
                     recommendations.get(holder.getAdapterPosition()).setSelected(true);
                     v.setBackgroundColor(Color.GRAY);
-                }else{
+                } else {
                     recommendations.get(holder.getAdapterPosition()).setSelected(false);
                     v.setBackgroundColor(Color.WHITE);
                 }

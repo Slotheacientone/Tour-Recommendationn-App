@@ -1,5 +1,7 @@
 package edu.hcmuaf.tourrecommendationapp.service;
 
+import android.util.Log;
+
 import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
@@ -10,7 +12,6 @@ import java.util.concurrent.ExecutionException;
 
 import edu.hcmuaf.tourrecommendationapp.R;
 import edu.hcmuaf.tourrecommendationapp.dto.DistanceRequest;
-import edu.hcmuaf.tourrecommendationapp.model.ApiResponse;
 import edu.hcmuaf.tourrecommendationapp.model.Location;
 import edu.hcmuaf.tourrecommendationapp.util.ApiClient;
 import edu.hcmuaf.tourrecommendationapp.util.Resource;
@@ -18,12 +19,14 @@ import edu.hcmuaf.tourrecommendationapp.util.Utils;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class DistanceService {
 
     private static DistanceService mInstance;
+    public static final String TAG = "Distance service";
 
-    private DistanceService(){
+    private DistanceService() {
     }
 
     public static DistanceService getInstance() {
@@ -43,11 +46,12 @@ public class DistanceService {
                 .url(url)
                 .post(requestBody)
                 .build();
-        ApiResponse response = ApiClient.sendAsyncTemp(request);
+        Log.i(TAG, "Send request: " + request);
+        Response response = ApiClient.getClient().newCall(request).execute();
         Type recommendationsType = new TypeToken<List<Location>>() {
         }.getType();
-        if (response!=null && response.isSuccessful()) {
-            return Utils.fromJson(response.getBody(), recommendationsType);
+        if (response != null && response.isSuccessful()) {
+            return Utils.fromJson(response.body().string(), recommendationsType);
         }
         return new ArrayList<Location>();
     }

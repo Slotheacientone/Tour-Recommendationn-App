@@ -30,8 +30,9 @@
     <string name="saved_trip_api_path">/api/save-trip</string>
     <string name="save_trip_api_uri">/save-trip</string>
     <string name="delete_saved_trip_api_uri">/delete-saved-trip</string>
-    <string name="get_saved_trip_list_api_uri">/get-saved_trip_list</string>
-    <string name="get_saved_trip_api_uri">/get-saved_trip</string>
+    <string name="get_saved_trip_list_api_uri">/get-saved-trips</string>
+    <string name="get_saved_trip_api_uri">/get-saved-trip</string>
+    <string name="delete_location_from_saved_trip">/delete-location-from-saved-trip</string>
 
     <!-- Recommendate api -->
     <string name="recommendate_api_path">/api/recommend</string>

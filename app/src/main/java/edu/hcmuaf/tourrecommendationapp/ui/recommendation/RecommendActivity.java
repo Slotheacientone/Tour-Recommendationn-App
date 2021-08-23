@@ -4,11 +4,11 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.CompoundButton;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
@@ -23,10 +23,8 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import edu.hcmuaf.tourrecommendationapp.R;
 import edu.hcmuaf.tourrecommendationapp.model.Location;
@@ -39,6 +37,12 @@ import edu.hcmuaf.tourrecommendationapp.service.SortService;
 import edu.hcmuaf.tourrecommendationapp.service.WishlistService;
 import edu.hcmuaf.tourrecommendationapp.ui.navigation.MapsActivity;
 import edu.hcmuaf.tourrecommendationapp.util.SharedPrefs;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.ObservableEmitter;
+import io.reactivex.rxjava3.core.ObservableOnSubscribe;
+import io.reactivex.rxjava3.observers.DisposableObserver;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import lombok.SneakyThrows;
 
 public class RecommendActivity extends AppCompatActivity {
@@ -66,12 +70,6 @@ public class RecommendActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recommend);
-//        int SDK_INT = android.os.Build.VERSION.SDK_INT;
-//        if (SDK_INT > 8) {
-//            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
-//                    .permitAll().build();
-//            StrictMode.setThreadPolicy(policy);
-//        }
         toggleSortRecommendButton = findViewById(R.id.toggle_sort_recommen_button);
         savedTripService = SavedTripService.getInstance();
         sortService = SortService.getInstance();
@@ -121,22 +119,44 @@ public class RecommendActivity extends AppCompatActivity {
     }
 
     public void prepareData() {
-        try {
-            if (this.lastKnownLocation != null) {
-                recommendations.addAll(recommendateService.getRecommendations(user.getId(), this.lastKnownLocation.getLatitude(), this.lastKnownLocation.getLongitude()));
-                wishlist.addAll(wishlistService.getWishlist(user.getId(), this.lastKnownLocation.getLatitude(), this.lastKnownLocation.getLongitude()));
-                haveDistances = true;
-            } else {
-                recommendations.addAll(recommendateService.getRecommendations(user.getId()));
-               // wishlist.addAll(wishlistService.getWishlist(user.getId()));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        getRecommendations(user.getId(), this.lastKnownLocation)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableObserver<List<Location>>() {
+                    @Override
+                    public void onNext(@io.reactivex.rxjava3.annotations.NonNull List<Location> locations) {
+                        recommendations.addAll(locations);
+                    }
+
+                    @Override
+                    public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+                        Log.e(RecommendateService.TAG, e.getMessage());
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        recommendationAdapter.notifyDataSetChanged();
+                    }
+                });
+        getWishlist(user.getId(), this.lastKnownLocation)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableObserver<List<Location>>() {
+                    @Override
+                    public void onNext(@io.reactivex.rxjava3.annotations.NonNull List<Location> locations) {
+                        wishlist.addAll(locations);
+                    }
+
+                    @Override
+                    public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+                        Log.e(WishlistService.TAG, e.getMessage());
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        wishlistAdapter.notifyDataSetChanged();
+                    }
+                });
     }
 
     @Override
@@ -161,20 +181,35 @@ public class RecommendActivity extends AppCompatActivity {
                     SavedTrip savedTrip = new SavedTrip();
                     savedTrip.setSavedTripLocations(selectedLocations);
                     savedTrip.setUserId(user.getId());
-                    try {
-                        savedTripService.saveTrip(savedTrip);
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    saveTrip(savedTrip).subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribeWith(new DisposableObserver<Boolean>() {
+                                @Override
+                                public void onNext(@io.reactivex.rxjava3.annotations.NonNull Boolean aBoolean) {
+                                    if (aBoolean) {
+                                        Toast.makeText(getBaseContext(), "Save trip successfully", Toast.LENGTH_LONG).show();
+                                    } else {
+                                        Toast.makeText(getBaseContext(), "Save trip unsuccessfully", Toast.LENGTH_LONG).show();
+                                    }
+                                }
+
+                                @Override
+                                public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+                                    Log.e(SavedTripService.TAG, e.getMessage());
+                                }
+
+                                @Override
+                                public void onComplete() {
+
+                                }
+                            });
                     Intent intent = new Intent(this, MapsActivity.class);
                     intent.putExtra("savedTrip", savedTrip);
-                    if(lastKnownLocation!=null) {
+                    if (lastKnownLocation != null) {
                         Bundle bundle = new Bundle();
                         bundle.putParcelable("location", lastKnownLocation);
                         startActivity(intent, bundle);
-                    }else {
+                    } else {
                         startActivity(intent);
                     }
                 }
@@ -230,19 +265,54 @@ public class RecommendActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<android.location.Location> task) {
                         if (task.isSuccessful()) {
-                            // Set the map's camera position to the current location of the device.
                             lastKnownLocation = task.getResult();
-                            if (!haveDistances&&lastKnownLocation!=null) {
-                                List<Location> recommendationDistance = distanceService.getDistance(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(), recommendations);
-                                for (int i = 0; i < recommendationDistance.size(); i++) {
-                                    recommendations.get(i).setDistance(recommendationDistance.get(i).getDistance());
-                                }
-                                List<Location> wishlistDistance = distanceService.getDistance(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(), wishlist);
-                                for (int i = 0; i < wishlistDistance.size(); i++) {
-                                    wishlist.get(i).setDistance(wishlistDistance.get(i).getDistance());
-                                }
-                                recommendationAdapter.notifyDataSetChanged();
-                                wishlistAdapter.notifyDataSetChanged();
+                            if (!haveDistances && lastKnownLocation != null) {
+                                getDistances(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(), recommendations)
+                                        .subscribeOn(Schedulers.io())
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribeWith(new DisposableObserver<List<Location>>() {
+                                            @Override
+                                            public void onNext(@io.reactivex.rxjava3.annotations.NonNull List<Location> locations) {
+                                                if (locations.size() == recommendations.size()) {
+                                                    for (int i = 0; i < locations.size(); i++) {
+                                                        recommendations.get(i).setDistance(locations.get(i).getDistance());
+                                                    }
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+                                                Log.e(DistanceService.TAG, e.getMessage());
+                                            }
+
+                                            @Override
+                                            public void onComplete() {
+                                                recommendationAdapter.notifyDataSetChanged();
+                                            }
+                                        });
+                                getDistances(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(), wishlist)
+                                        .subscribeOn(Schedulers.io())
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribeWith(new DisposableObserver<List<Location>>() {
+                                            @Override
+                                            public void onNext(@io.reactivex.rxjava3.annotations.NonNull List<Location> locations) {
+                                                if (locations.size() == wishlist.size()) {
+                                                    for (int i = 0; i < locations.size(); i++) {
+                                                        wishlist.get(i).setDistance(locations.get(i).getDistance());
+                                                    }
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+                                                Log.e(DistanceService.TAG, e.getMessage());
+                                            }
+
+                                            @Override
+                                            public void onComplete() {
+                                                wishlistAdapter.notifyDataSetChanged();
+                                            }
+                                        });
                             }
                         }
                     }
@@ -251,6 +321,78 @@ public class RecommendActivity extends AppCompatActivity {
         } catch (SecurityException e) {
             Log.e("Exception: %s", e.getMessage(), e);
         }
+    }
+
+    private Observable<List<Location>> getDistances(double latitude, double longitude, List<Location> locations) {
+        return Observable.create(new ObservableOnSubscribe<List<Location>>() {
+            @Override
+            public void subscribe(@io.reactivex.rxjava3.annotations.NonNull ObservableEmitter<List<Location>> emitter) {
+                try {
+                    List<Location> result = distanceService.getDistance(latitude, longitude, locations);
+                    emitter.onNext(result);
+                    emitter.onComplete();
+                } catch (Exception e) {
+                    emitter.onError(e);
+                }
+            }
+        });
+    }
+
+    private Observable<List<Location>> getRecommendations(long userId, android.location.Location lastKnownLocation) {
+        return Observable.create(new ObservableOnSubscribe<List<Location>>() {
+            @Override
+            public void subscribe(@io.reactivex.rxjava3.annotations.NonNull ObservableEmitter<List<Location>> emitter) {
+                try {
+                    if (lastKnownLocation == null) {
+                        List<Location> result = recommendateService.getRecommendations(userId);
+                        emitter.onNext(result);
+                        emitter.onComplete();
+                    } else {
+                        List<Location> result = recommendateService.getRecommendations(userId, lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
+                        emitter.onNext(result);
+                        emitter.onComplete();
+                    }
+                } catch (Exception e) {
+                    emitter.onError(e);
+                }
+            }
+        });
+    }
+
+    private Observable<List<Location>> getWishlist(long userId, android.location.Location lastKnownLocation) {
+        return Observable.create(new ObservableOnSubscribe<List<Location>>() {
+            @Override
+            public void subscribe(@io.reactivex.rxjava3.annotations.NonNull ObservableEmitter<List<Location>> emitter) {
+                try {
+                    if (lastKnownLocation == null) {
+                        List<Location> result = wishlistService.getWishlist(userId);
+                        emitter.onNext(result);
+                        emitter.onComplete();
+                    } else {
+                        List<Location> result = wishlistService.getWishlist(userId, lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
+                        emitter.onNext(result);
+                        emitter.onComplete();
+                    }
+                } catch (Exception e) {
+                    emitter.onError(e);
+                }
+            }
+        });
+    }
+
+    private Observable<Boolean> saveTrip(SavedTrip savedTrip) {
+        return Observable.create(new ObservableOnSubscribe<Boolean>() {
+            @Override
+            public void subscribe(@io.reactivex.rxjava3.annotations.NonNull ObservableEmitter<Boolean> emitter) {
+                try {
+                    boolean isSuccess = savedTripService.saveTrip(savedTrip);
+                    emitter.onNext(isSuccess);
+                    emitter.onComplete();
+                } catch (Exception e) {
+                    emitter.onError(e);
+                }
+            }
+        });
     }
 
 }

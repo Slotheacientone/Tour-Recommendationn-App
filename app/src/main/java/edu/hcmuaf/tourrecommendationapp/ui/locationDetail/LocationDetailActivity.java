@@ -1,10 +1,7 @@
 package edu.hcmuaf.tourrecommendationapp.ui.locationDetail;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
@@ -12,15 +9,22 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.squareup.picasso.Picasso;
+import androidx.appcompat.app.AppCompatActivity;
 
-import java.util.concurrent.ExecutionException;
+import com.squareup.picasso.Picasso;
 
 import edu.hcmuaf.tourrecommendationapp.R;
 import edu.hcmuaf.tourrecommendationapp.model.Location;
 import edu.hcmuaf.tourrecommendationapp.model.User;
 import edu.hcmuaf.tourrecommendationapp.service.WishlistService;
 import edu.hcmuaf.tourrecommendationapp.util.SharedPrefs;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.annotations.NonNull;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.ObservableEmitter;
+import io.reactivex.rxjava3.core.ObservableOnSubscribe;
+import io.reactivex.rxjava3.observers.DisposableObserver;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class LocationDetailActivity extends AppCompatActivity {
 
@@ -40,15 +44,9 @@ public class LocationDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_location_detail);
-//        int SDK_INT = android.os.Build.VERSION.SDK_INT;
-//        if (SDK_INT > 8) {
-//            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
-//                    .permitAll().build();
-//            StrictMode.setThreadPolicy(policy);
-//        }
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Intent intent = getIntent();
-        Location location = (Location) intent.getSerializableExtra("location");
+        location = (Location) intent.getSerializableExtra("location");
         setTitle(location.getLocationName());
 
         if (savedInstanceState == null) {
@@ -85,21 +83,46 @@ public class LocationDetailActivity extends AppCompatActivity {
                 finish();
                 return true;
             case R.id.wishlist_menu_item:
-                boolean success = false;
-                try {
-                    success = wishlistService.addLocationToWishlist(user.getId(), location.getLocationId());
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                if (success) {
-                    Toast.makeText(getBaseContext(), "Add to wishlist successfully", Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(getBaseContext(), "Add to wishlist unsuccessfully", Toast.LENGTH_LONG).show();
-                }
+                addLocationToWishlist(user.getId(),location.getLocationId())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(new DisposableObserver<Boolean>() {
+                            @Override
+                            public void onNext(@NonNull Boolean aBoolean) {
+                                if (aBoolean) {
+                                    Toast.makeText(getBaseContext(), "Add to wishlist successfully", Toast.LENGTH_LONG).show();
+                                } else {
+                                    Toast.makeText(getBaseContext(), "Add to wishlist unsuccessfully", Toast.LENGTH_LONG).show();
+                                }
+                            }
+
+                            @Override
+                            public void onError(@NonNull Throwable e) {
+
+                            }
+
+                            @Override
+                            public void onComplete() {
+
+                            }
+                        });
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private Observable<Boolean> addLocationToWishlist(long userId, long locationId) {
+        return Observable.create(new ObservableOnSubscribe<Boolean>() {
+            @Override
+            public void subscribe(@NonNull ObservableEmitter<Boolean> emitter) {
+                try {
+                    boolean success = wishlistService.addLocationToWishlist(userId, locationId);
+                    emitter.onNext(success);
+                    emitter.onComplete();
+                } catch (Exception e) {
+                    emitter.onError(e);
+                }
+            }
+        });
     }
 }

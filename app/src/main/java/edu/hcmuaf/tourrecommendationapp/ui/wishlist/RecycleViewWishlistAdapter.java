@@ -2,7 +2,7 @@ package edu.hcmuaf.tourrecommendationapp.ui.wishlist;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.StrictMode;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,9 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import edu.hcmuaf.tourrecommendationapp.R;
 import edu.hcmuaf.tourrecommendationapp.model.Location;
@@ -27,8 +25,13 @@ import edu.hcmuaf.tourrecommendationapp.model.User;
 import edu.hcmuaf.tourrecommendationapp.service.WishlistService;
 import edu.hcmuaf.tourrecommendationapp.ui.locationDetail.LocationDetailActivity;
 import edu.hcmuaf.tourrecommendationapp.util.SharedPrefs;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.ObservableEmitter;
+import io.reactivex.rxjava3.core.ObservableOnSubscribe;
+import io.reactivex.rxjava3.observers.DisposableObserver;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import jp.wasabeef.picasso.transformations.CropSquareTransformation;
-import lombok.SneakyThrows;
 
 public class RecycleViewWishlistAdapter extends RecyclerView.Adapter<RecycleViewWishlistAdapter.RecycleViewWishlistHolder> {
 
@@ -36,18 +39,10 @@ public class RecycleViewWishlistAdapter extends RecyclerView.Adapter<RecycleView
     private List<Location> wishList;
     private User user;
     private WishlistService wishlistService;
-    private RecycleViewWishlistAdapter adapter;
 
     public RecycleViewWishlistAdapter(Context context, List<Location> wishList) {
         this.context = context;
-//        int SDK_INT = android.os.Build.VERSION.SDK_INT;
-//        if (SDK_INT > 8) {
-//            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
-//                    .permitAll().build();
-//            StrictMode.setThreadPolicy(policy);
-//        }
         this.wishList = wishList;
-        adapter = this;
         wishlistService = WishlistService.getInstance();
         user = SharedPrefs.getInstance().get("myInfo", User.class);
     }
@@ -65,19 +60,37 @@ public class RecycleViewWishlistAdapter extends RecyclerView.Adapter<RecycleView
         holder.locationName.setText(wishList.get(position).getLocationName());
         holder.locationRatingBar.setRating(wishList.get(position).getRatings());
         holder.locationNumberOfPeopleRating.setText(String.valueOf(wishList.get(position).getNumberOfPeopleRating()));
-//        holder.deleteButton.setOnClickListener(new View.OnClickListener() {
-//            @SneakyThrows
-//            @Override
-//            public void onClick(View v) {
-//                wishlistService.deleteLocationFromWishlist(user.getId(),wishList.get(holder.getAdapterPosition()).getLocationId());
-//                wishlistService.getWishlist(user.getId());
-//            }
-//        });
+        holder.deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                deleteLocationFromWishlist(user.getId(), wishList.get(holder.getAdapterPosition()).getLocationId())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(new DisposableObserver<Boolean>() {
+                            @Override
+                            public void onNext(@io.reactivex.rxjava3.annotations.NonNull Boolean aBoolean) {
+                                if (aBoolean) {
+                                    wishList.remove(wishList.get(holder.getAdapterPosition()));
+                                }
+                            }
+
+                            @Override
+                            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+                                Log.e(WishlistService.TAG, e.getMessage());
+                            }
+
+                            @Override
+                            public void onComplete() {
+                                notifyDataSetChanged();
+                            }
+                        });
+            }
+        });
         holder.locationItemCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, LocationDetailActivity.class);
-                intent.putExtra("location",wishList.get(holder.getAdapterPosition()));
+                intent.putExtra("location", wishList.get(holder.getAdapterPosition()));
                 context.startActivity(intent);
             }
         });
@@ -85,12 +98,25 @@ public class RecycleViewWishlistAdapter extends RecyclerView.Adapter<RecycleView
 
     }
 
-
     @Override
     public int getItemCount() {
         return wishList.size();
     }
 
+    public Observable<Boolean> deleteLocationFromWishlist(long userId, long locationId) {
+        return Observable.create(new ObservableOnSubscribe<Boolean>() {
+            @Override
+            public void subscribe(@io.reactivex.rxjava3.annotations.NonNull ObservableEmitter<Boolean> emitter) throws Throwable {
+                try {
+                    boolean isSuccess = wishlistService.deleteLocationFromWishlist(userId, locationId);
+                    emitter.onNext(isSuccess);
+                    emitter.onComplete();
+                } catch (Exception e) {
+                    emitter.onError(e);
+                }
+            }
+        });
+    }
 
     class RecycleViewWishlistHolder extends RecyclerView.ViewHolder {
 

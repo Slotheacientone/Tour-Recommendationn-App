@@ -2,55 +2,45 @@ package edu.hcmuaf.tourrecommendationapp.ui.savedTrip;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.StrictMode;
+import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.io.IOException;
+import com.squareup.picasso.Picasso;
+
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import edu.hcmuaf.tourrecommendationapp.R;
 import edu.hcmuaf.tourrecommendationapp.model.SavedTrip;
-import edu.hcmuaf.tourrecommendationapp.model.User;
 import edu.hcmuaf.tourrecommendationapp.service.SavedTripService;
-import edu.hcmuaf.tourrecommendationapp.util.SharedPrefs;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.ObservableEmitter;
+import io.reactivex.rxjava3.core.ObservableOnSubscribe;
+import io.reactivex.rxjava3.observers.DisposableObserver;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+import jp.wasabeef.picasso.transformations.CropSquareTransformation;
 import lombok.SneakyThrows;
 
 public class RecycleViewSavedTripAdapter extends RecyclerView.Adapter<RecycleViewSavedTripAdapter.RecycleViewSavedTripHolder> {
 
     private Context context;
-    private List<SavedTrip> savedTripList;
+    private List<SavedTrip> savedTrips;
     private SavedTripService savedTripService;
-    private User user;
 
-    public RecycleViewSavedTripAdapter(Context context) {
+    public RecycleViewSavedTripAdapter(Context context, List<SavedTrip> savedTrips) {
         this.context = context;
-//        int SDK_INT = android.os.Build.VERSION.SDK_INT;
-//        if (SDK_INT > 8) {
-//            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
-//                    .permitAll().build();
-//            StrictMode.setThreadPolicy(policy);
-//        }
-        user = SharedPrefs.getInstance().get("myInfo", User.class);
         savedTripService = SavedTripService.getInstance();
-        try {
-            savedTripList = savedTripService.getSavedTriplist(user.getId());
-            System.out.println(savedTripList);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        this.savedTrips = savedTrips;
     }
 
     @NonNull
@@ -63,45 +53,83 @@ public class RecycleViewSavedTripAdapter extends RecyclerView.Adapter<RecycleVie
 
     @Override
     public void onBindViewHolder(@NonNull RecycleViewSavedTripHolder holder, int position) {
-        holder.savedTripName.setText(savedTripList.get(position).getSavedTripName());
+        holder.savedTripName.setText(savedTrips.get(position).getSavedTripName());
         holder.savedTripButton.setOnClickListener(new View.OnClickListener() {
             @SneakyThrows
             @Override
             public void onClick(View v) {
-                savedTripService.deleteSavedTrip(savedTripList.get(holder.getAdapterPosition()).getSavedTripId());
-                savedTripList = savedTripService.getSavedTriplist(user.getId());
-                notifyDataChanged();
+                deleteSavedTrip(savedTrips.get(holder.getAdapterPosition()).getSavedTripId())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(new DisposableObserver<Boolean>() {
+                            @Override
+                            public void onNext(@io.reactivex.rxjava3.annotations.NonNull Boolean aBoolean) {
+                                if (aBoolean) {
+                                    savedTrips.remove(savedTrips.get(holder.getAdapterPosition()));
+                                }
+                            }
+
+                            @Override
+                            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+                                Log.e(SavedTripService.TAG, e.getMessage());
+                            }
+
+                            @Override
+                            public void onComplete() {
+                                notifyDataSetChanged();
+                            }
+                        });
+
             }
         });
         holder.savedTripCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, SavedTripDetailActivity.class);
-                intent.putExtra("savedTrip",savedTripList.get(holder.getAdapterPosition()));
+                Bundle bundle = new Bundle();
+                bundle.putLong("savedTripId",savedTrips.get(holder.getAdapterPosition()).getSavedTripId());
+                intent.putExtra("bundle", bundle);
                 context.startActivity(intent);
             }
         });
+        Picasso.get().load(savedTrips.get(position).getSavedTripLocations().get(0).getLocationImageUrl())
+                .transform(new CropSquareTransformation()).into(holder.savedTripImage);
+    }
 
+    public Observable<Boolean> deleteSavedTrip(long savedTripId) {
+        return Observable.create(new ObservableOnSubscribe<Boolean>() {
+            @Override
+            public void subscribe(@io.reactivex.rxjava3.annotations.NonNull ObservableEmitter<Boolean> emitter){
+                try {
+                    boolean isSuccess = savedTripService.deleteSavedTrip(savedTripId);
+                    emitter.onNext(isSuccess);
+                    emitter.onComplete();
+                } catch (Exception e) {
+                    emitter.onError(e);
+                }
+            }
+        });
     }
-    public void notifyDataChanged(){
-        this.notifyDataSetChanged();
-    }
+
 
     @Override
     public int getItemCount() {
-        return savedTripList.size();
+
+        System.out.println(savedTrips.size());return savedTrips.size();
     }
 
 
     class RecycleViewSavedTripHolder extends RecyclerView.ViewHolder {
 
         private TextView savedTripName;
+        private ImageView savedTripImage;
         private ImageButton savedTripButton;
         private CardView savedTripCardView;
 
         public RecycleViewSavedTripHolder(@NonNull View itemView) {
             super(itemView);
             savedTripName = itemView.findViewById(R.id.saved_trip_name);
+            savedTripImage = itemView.findViewById(R.id.saved_trip_item_image);
             savedTripButton = itemView.findViewById(R.id.delete_saved_trip_button);
             savedTripCardView = itemView.findViewById(R.id.saved_trip_card_view);
         }

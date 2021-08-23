@@ -1,17 +1,16 @@
 package edu.hcmuaf.tourrecommendationapp.ui.wishlist;
 
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -27,7 +26,6 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.ObservableEmitter;
 import io.reactivex.rxjava3.core.ObservableOnSubscribe;
-import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.observers.DisposableObserver;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import lombok.SneakyThrows;
@@ -39,7 +37,6 @@ public class WishlistFragment extends Fragment {
     private List<Location> wishlist;
     private WishlistService wishlistService;
     private User user;
-    private final static String TAG = "Wishlist service";
 
 
     public WishlistFragment() {
@@ -78,7 +75,7 @@ public class WishlistFragment extends Fragment {
 
             @Override
             public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
-                Log.e(TAG, e.getMessage());
+                Log.e(WishlistService.TAG, e.getMessage());
             }
 
             @Override
@@ -89,7 +86,7 @@ public class WishlistFragment extends Fragment {
         wishlistRecycleView.setLayoutManager(new LinearLayoutManager(getContext()));
     }
 
-    public Observable<List<Location>> getWishlist(long userId) {
+    private Observable<List<Location>> getWishlist(long userId) {
         return Observable.create(new ObservableOnSubscribe<List<Location>>() {
             @Override
             public void subscribe(@io.reactivex.rxjava3.annotations.NonNull ObservableEmitter<List<Location>> emitter) throws Throwable {

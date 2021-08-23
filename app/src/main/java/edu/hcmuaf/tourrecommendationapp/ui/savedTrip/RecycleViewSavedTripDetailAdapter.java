@@ -2,7 +2,7 @@ package edu.hcmuaf.tourrecommendationapp.ui.savedTrip;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.StrictMode;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,9 +21,14 @@ import java.util.List;
 
 import edu.hcmuaf.tourrecommendationapp.R;
 import edu.hcmuaf.tourrecommendationapp.model.Location;
-import edu.hcmuaf.tourrecommendationapp.model.SavedTrip;
 import edu.hcmuaf.tourrecommendationapp.service.SavedTripService;
 import edu.hcmuaf.tourrecommendationapp.ui.locationDetail.LocationDetailActivity;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.ObservableEmitter;
+import io.reactivex.rxjava3.core.ObservableOnSubscribe;
+import io.reactivex.rxjava3.observers.DisposableObserver;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import jp.wasabeef.picasso.transformations.CropSquareTransformation;
 import lombok.SneakyThrows;
 
@@ -38,12 +43,6 @@ public class RecycleViewSavedTripDetailAdapter extends RecyclerView.Adapter<Recy
         this.context = context;
         this.savedTripLocations = savedTripLocations;
         this.savedTripId = savedTripId;
-//        int SDK_INT = android.os.Build.VERSION.SDK_INT;
-//        if (SDK_INT > 8) {
-//            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
-//                    .permitAll().build();
-//            StrictMode.setThreadPolicy(policy);
-//        }
         savedTripService = SavedTripService.getInstance();
     }
 
@@ -64,10 +63,27 @@ public class RecycleViewSavedTripDetailAdapter extends RecyclerView.Adapter<Recy
             @SneakyThrows
             @Override
             public void onClick(View v) {
-                savedTripService.deleteSavedTrip(savedTripId);
-                SavedTrip savedTrip = savedTripService.getSavedTrip(savedTripId);
-                savedTripLocations = savedTrip.getSavedTripLocations();
-                notifyDataChanged();
+                deleteLocationFromSavedTrip(savedTripId, savedTripLocations.get(holder.getAdapterPosition()).getLocationId())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(new DisposableObserver<Boolean>() {
+                            @Override
+                            public void onNext(@io.reactivex.rxjava3.annotations.NonNull Boolean aBoolean) {
+                                if (aBoolean) {
+                                    savedTripLocations.remove(savedTripLocations.get(holder.getAdapterPosition()));
+                                }
+                            }
+
+                            @Override
+                            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+                                Log.e(SavedTripService.TAG, e.getMessage());
+                            }
+
+                            @Override
+                            public void onComplete() {
+                                notifyDataSetChanged();
+                            }
+                        });
             }
         });
         holder.locationItemCardView.setOnClickListener(new View.OnClickListener() {
@@ -81,13 +97,25 @@ public class RecycleViewSavedTripDetailAdapter extends RecyclerView.Adapter<Recy
         Picasso.get().load(savedTripLocations.get(position).getLocationImageUrl()).transform(new CropSquareTransformation()).into(holder.locationImage);
 
     }
-    public void notifyDataChanged(){
-        this.notifyDataSetChanged();
-    }
 
     @Override
     public int getItemCount() {
         return savedTripLocations.size();
+    }
+
+    public Observable<Boolean> deleteLocationFromSavedTrip(long savedTripId, long locationId) {
+        return Observable.create(new ObservableOnSubscribe<Boolean>() {
+            @Override
+            public void subscribe(@io.reactivex.rxjava3.annotations.NonNull ObservableEmitter<Boolean> emitter) {
+                try {
+                    boolean isSuccess = savedTripService.deleteLocationFromSavedTrip(savedTripId, locationId);
+                    emitter.onNext(isSuccess);
+                    emitter.onComplete();
+                } catch (Exception e) {
+                    emitter.onError(e);
+                }
+            }
+        });
     }
 
 

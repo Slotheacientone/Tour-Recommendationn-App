@@ -3,7 +3,6 @@ package edu.hcmuaf.tourrecommendationapp.ui.recommendation;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.os.StrictMode;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,18 +17,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import edu.hcmuaf.tourrecommendationapp.R;
 import edu.hcmuaf.tourrecommendationapp.model.Location;
-import edu.hcmuaf.tourrecommendationapp.model.User;
-import edu.hcmuaf.tourrecommendationapp.service.WishlistService;
 import edu.hcmuaf.tourrecommendationapp.ui.locationDetail.LocationDetailActivity;
-import edu.hcmuaf.tourrecommendationapp.util.SharedPrefs;
 import jp.wasabeef.picasso.transformations.CropSquareTransformation;
-import lombok.SneakyThrows;
 
 public class RecycleViewWishlistRecommendationAdapter extends RecyclerView.Adapter<RecycleViewWishlistRecommendationAdapter.RecycleViewWishlistRecommedationHolder> {
 
@@ -56,16 +49,16 @@ public class RecycleViewWishlistRecommendationAdapter extends RecyclerView.Adapt
         holder.locationRatingBar.setRating(wishlist.get(position).getRatings());
         holder.locationNumberOfPeopleRating.setText(String.valueOf(wishlist.get(position).getNumberOfPeopleRating()));
         holder.deleteButton.setVisibility(View.GONE);
-        if(wishlist.get(position).getDistance()!=-1) {
+        if (wishlist.get(position).getDistance() != -1 && wishlist.get(position).getDistance() != 0) {
             holder.locationDistance.setText("Khoảng cách: " + wishlist.get(position).getDistance());
         }
         holder.locationItemCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!wishlist.get(holder.getAdapterPosition()).isSelected()){
+                if (!wishlist.get(holder.getAdapterPosition()).isSelected()) {
                     wishlist.get(holder.getAdapterPosition()).setSelected(true);
                     v.setBackgroundColor(Color.GRAY);
-                }else{
+                } else {
                     wishlist.get(holder.getAdapterPosition()).setSelected(false);
                     v.setBackgroundColor(Color.WHITE);
                 }

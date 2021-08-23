@@ -1,5 +1,7 @@
 package edu.hcmuaf.tourrecommendationapp.service;
 
+import android.util.Log;
+
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.maps.android.PolyUtil;
@@ -20,9 +22,11 @@ import edu.hcmuaf.tourrecommendationapp.util.ApiClient;
 import edu.hcmuaf.tourrecommendationapp.util.Resource;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
+import okhttp3.Response;
 
 public class DirectionsApiService {
 
+    private static final String TAG = "Direction api service";
     private SortService sortService;
     private static DirectionsApiService mInstance;
 
@@ -39,7 +43,7 @@ public class DirectionsApiService {
     public Route getRoute(android.location.Location origin, List<Location> waypoints) throws IOException, ExecutionException, InterruptedException, JSONException {
         Route route = null;
         sortService.sortByDistance(waypoints);
-        Location destination = waypoints.get(waypoints.size()-1);
+        Location destination = waypoints.get(waypoints.size() - 1);
         waypoints.remove(destination);
         String apiKey = Resource.getString(R.string.google_maps_key);
         HttpUrl.Builder urlBuilder
@@ -57,10 +61,11 @@ public class DirectionsApiService {
         Request request = new Request.Builder()
                 .url(url)
                 .build();
-        ApiResponse response = ApiClient.sendAsyncTemp(request);
+        Log.i(TAG, "Send request: " + request);
+        Response response = ApiClient.getClient().newCall(request).execute();
         if (response != null && response.isSuccessful()) {
             route = new Route();
-            String stringResponse = response.getBody();
+            String stringResponse = response.body().string();
             JSONObject json = new JSONObject(stringResponse);
             JSONArray routes = json.getJSONArray("routes");
             JSONObject routesObject = routes.getJSONObject(0);

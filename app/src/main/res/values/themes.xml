@@ -16,4 +16,11 @@
         <item name="android:windowTranslucentNavigation">true</item>
 
     </style>
+    <style name="Theme.TourRecommendationApp.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.TourRecommendationApp.AppBarOverlay"
+        parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="Theme.TourRecommendationApp.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>

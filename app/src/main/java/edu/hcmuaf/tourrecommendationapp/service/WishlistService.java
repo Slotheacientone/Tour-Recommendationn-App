@@ -1,16 +1,15 @@
 package edu.hcmuaf.tourrecommendationapp.service;
 
+import android.util.Log;
+
 import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 import edu.hcmuaf.tourrecommendationapp.R;
-import edu.hcmuaf.tourrecommendationapp.model.ApiResponse;
 import edu.hcmuaf.tourrecommendationapp.model.Location;
 import edu.hcmuaf.tourrecommendationapp.util.ApiClient;
 import edu.hcmuaf.tourrecommendationapp.util.Resource;
@@ -22,7 +21,8 @@ import okhttp3.Response;
 public class WishlistService {
 
     private static WishlistService mInstance;
-    private final static String TAG = "Wishlist service";
+    public final static String TAG = "Wishlist service";
+
     private WishlistService() {
     }
 
@@ -32,7 +32,8 @@ public class WishlistService {
         return mInstance;
     }
 
-    public boolean addLocationToWishlist(long userId, long locationId) throws ExecutionException, InterruptedException {
+
+    public boolean addLocationToWishlist(long userId, long locationId) throws IOException {
         HttpUrl.Builder urlBuilder
                 = HttpUrl.parse(Resource.getString(R.string.base_api_uri)
                 + Resource.getString(R.string.wishlist_api_path)
@@ -43,10 +44,9 @@ public class WishlistService {
         Request request = new Request.Builder()
                 .url(url)
                 .build();
-        ApiResponse response = ApiClient.sendAsyncTemp(request);
-        CompletableFuture<Response> r = ApiClient.sendAsync(request);
-
-        if (response.getCode() == 200) {
+        Log.i(TAG, "Send request: " + request);
+        Response response = ApiClient.getClient().newCall(request).execute();
+        if (response.code() == 200) {
             return true;
         }
         return false;
@@ -62,6 +62,7 @@ public class WishlistService {
         Request request = new Request.Builder()
                 .url(url)
                 .build();
+        Log.i(TAG, "Send request: " + request);
         Response response = ApiClient.getClient().newCall(request).execute();
         Type wishlistType = new TypeToken<List<Location>>() {
         }.getType();
@@ -71,7 +72,7 @@ public class WishlistService {
         return new ArrayList<Location>();
     }
 
-    public boolean deleteLocationFromWishlist(long userId, long locationId) throws ExecutionException, InterruptedException {
+    public boolean deleteLocationFromWishlist(long userId, long locationId) throws IOException {
         HttpUrl.Builder urlBuilder
                 = HttpUrl.parse(Resource.getString(R.string.base_api_uri)
                 + Resource.getString(R.string.wishlist_api_path)
@@ -82,14 +83,15 @@ public class WishlistService {
         Request request = new Request.Builder()
                 .url(url)
                 .build();
-        ApiResponse response = ApiClient.sendAsyncTemp(request);
-        if (response.getCode() == 200) {
+        Log.i(TAG, "Send request: " + request);
+        Response response = ApiClient.getClient().newCall(request).execute();
+        if (response.code() == 200) {
             return true;
         }
         return false;
     }
 
-    public List<Location> getWishlist(long userId, double latitude, double longitude) throws ExecutionException, InterruptedException, IOException {
+    public List<Location> getWishlist(long userId, double latitude, double longitude) throws IOException {
         HttpUrl.Builder urlBuilder
                 = HttpUrl.parse(Resource.getString(R.string.base_api_uri)
                 + Resource.getString(R.string.wishlist_api_path)
@@ -101,11 +103,12 @@ public class WishlistService {
         Request request = new Request.Builder()
                 .url(url)
                 .build();
-        ApiResponse response = ApiClient.sendAsyncTemp(request);
+        Log.i(TAG, "Send request: " + request);
+        Response response = ApiClient.getClient().newCall(request).execute();
         Type wishlistType = new TypeToken<List<Location>>() {
         }.getType();
         if (response!=null && response.isSuccessful()) {
-            return Utils.fromJson(response.getBody(), wishlistType);
+            return Utils.fromJson(response.body().string(), wishlistType);
         }
         return new ArrayList<Location>();
 
