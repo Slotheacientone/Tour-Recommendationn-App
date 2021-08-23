@@ -25,12 +25,22 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
+import org.json.JSONException;
+
+import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import edu.hcmuaf.tourrecommendationapp.R;
 import edu.hcmuaf.tourrecommendationapp.model.Route;
 import edu.hcmuaf.tourrecommendationapp.model.SavedTrip;
 import edu.hcmuaf.tourrecommendationapp.service.DirectionsApiService;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.ObservableEmitter;
+import io.reactivex.rxjava3.core.ObservableOnSubscribe;
+import io.reactivex.rxjava3.observers.DisposableObserver;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import lombok.SneakyThrows;
 
 public class MapsActivity extends AppCompatActivity implements
@@ -175,16 +185,32 @@ public class MapsActivity extends AppCompatActivity implements
                                 map.addMarker(new MarkerOptions()
                                         .position(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()))
                                         .title("Vị trí hiện tại"));
-                                Route route = directionsApiService.getRoute(lastKnownLocation, savedTrip.getSavedTripLocations());
-                                if (route != null) {
-                                    // Add polylines to the map.
-                                    // Polylines are useful to show a route or some other connection between points.
-                                    map.addPolyline(new PolylineOptions()
-                                            .clickable(false)
-                                            .addAll(route.getPolyline()));
+                                getRoute(lastKnownLocation, savedTrip.getSavedTripLocations())
+                                        .subscribeOn(Schedulers.io())
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribeWith(new DisposableObserver<Route>() {
+                                            @Override
+                                            public void onNext(@io.reactivex.rxjava3.annotations.NonNull Route route) {
+                                                if (route != null) {
+                                                    // Add polylines to the map.
+                                                    // Polylines are useful to show a route or some other connection between points.
+                                                    map.addPolyline(new PolylineOptions()
+                                                            .clickable(false)
+                                                            .addAll(route.getPolyline()));
+                                                    map.moveCamera(CameraUpdateFactory.newLatLngBounds(route.getBounds(), 0));
+                                                }
+                                            }
 
-                                    map.moveCamera(CameraUpdateFactory.newLatLngBounds(route.getBounds(), 0));
-                                }
+                                            @Override
+                                            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+                                                Log.e(DirectionsApiService.TAG, e.getMessage());
+                                            }
+
+                                            @Override
+                                            public void onComplete() {
+
+                                            }
+                                        });
                             }
                         } else {
 //                            Log.d(TAG, "Current location is null. Using defaults.");
@@ -250,4 +276,19 @@ public class MapsActivity extends AppCompatActivity implements
 //                Toast.LENGTH_SHORT).show();
 //
 //    }
+
+    private Observable<Route> getRoute(Location origin, List<edu.hcmuaf.tourrecommendationapp.model.Location> waypoints) {
+        return Observable.create(new ObservableOnSubscribe<Route>() {
+            @Override
+            public void subscribe(@io.reactivex.rxjava3.annotations.NonNull ObservableEmitter<Route> emitter) {
+                try {
+                    Route route = directionsApiService.getRoute(origin, waypoints);
+                    emitter.onNext(route);
+                    emitter.onComplete();
+                } catch (Exception e) {
+                    emitter.onError(e);
+                }
+            }
+        });
+    }
 }

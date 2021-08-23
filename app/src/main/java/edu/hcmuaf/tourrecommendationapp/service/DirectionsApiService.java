@@ -26,7 +26,7 @@ import okhttp3.Response;
 
 public class DirectionsApiService {
 
-    private static final String TAG = "Direction api service";
+    public static final String TAG = "Direction api service";
     private SortService sortService;
     private static DirectionsApiService mInstance;
 
@@ -40,7 +40,7 @@ public class DirectionsApiService {
         return mInstance;
     }
 
-    public Route getRoute(android.location.Location origin, List<Location> waypoints) throws IOException, ExecutionException, InterruptedException, JSONException {
+    public Route getRoute(android.location.Location origin, List<Location> waypoints) throws IOException, JSONException {
         Route route = null;
         sortService.sortByDistance(waypoints);
         Location destination = waypoints.get(waypoints.size() - 1);

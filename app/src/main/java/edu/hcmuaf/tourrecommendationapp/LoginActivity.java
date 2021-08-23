@@ -12,6 +12,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import edu.hcmuaf.tourrecommendationapp.dto.LoginRequest;
 import edu.hcmuaf.tourrecommendationapp.service.AuthService;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.annotations.NonNull;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.ObservableEmitter;
+import io.reactivex.rxjava3.core.ObservableOnSubscribe;
+import io.reactivex.rxjava3.observers.DisposableObserver;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
@@ -43,25 +50,61 @@ public class LoginActivity extends AppCompatActivity {
         String username = txtUsername.getText().toString();
         String password = txtPassword.getText().toString();
 
-        try {
-            submit(new LoginRequest(username, password));
-        } catch (Exception e) {
-            Toast.makeText(this, "Network error try again", Toast.LENGTH_LONG).show();
-            e.printStackTrace();
-        }
+//        try {
+//            submit(new LoginRequest(username, password));
+//        } catch (Exception e) {
+//            Toast.makeText(this, "Network error try again", Toast.LENGTH_LONG).show();
+//            e.printStackTrace();
+//        }
+        submit(new LoginRequest(username, password))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableObserver<Boolean>() {
+                    @Override
+                    public void onNext(@NonNull Boolean aBoolean) {
+                        if (!aBoolean) {
+                            Toast.makeText(getBaseContext(), "Username or password invalid", Toast.LENGTH_LONG).show();
+                        }
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        Toast.makeText(getBaseContext(), "Network error try again", Toast.LENGTH_LONG).show();
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+                    }
+                });
 
     }
 
-    public void submit(LoginRequest loginRequest) throws Exception {
-        if (!authService.login(loginRequest)) {
-            Toast.makeText(this, "Username or password invalid", Toast.LENGTH_LONG).show();
-            return;
-        }
+//    public void submit(LoginRequest loginRequest) throws Exception {
+//        if (!authService.login(loginRequest)) {
+//            Toast.makeText(this, "Username or password invalid", Toast.LENGTH_LONG).show();
+//            return;
+//        }
+//
+//        //redirect to MainActivity
+//        Intent intent = new Intent(this, MainActivity.class);
+//        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//        startActivity(intent);
+//    }
 
-        //redirect to MainActivity
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
+    public Observable<Boolean> submit(LoginRequest loginRequest){
+        return Observable.create(new ObservableOnSubscribe<Boolean>() {
+            @Override
+            public void subscribe(@NonNull ObservableEmitter<Boolean> emitter){
+                try {
+                    boolean isSuccess = authService.login(loginRequest);
+                    emitter.onNext(isSuccess);
+                    emitter.onComplete();
+                } catch (Exception e) {
+                    emitter.onError(e);
+                }
+            }
+        });
     }
 
 
