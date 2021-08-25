@@ -99,7 +99,6 @@ public class RecommendActivity extends AppCompatActivity {
         if (locationPermissionGranted) {
             getDeviceLocation();
         }
-        prepareData();
         recommendationRecycleView = findViewById(R.id.recommend_recycler_view);
         recommendationAdapter = new RecycleViewRecommendationAdapter(this, recommendations);
         recommendationRecycleView.setAdapter(recommendationAdapter);
@@ -266,54 +265,55 @@ public class RecommendActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<android.location.Location> task) {
                         if (task.isSuccessful()) {
                             lastKnownLocation = task.getResult();
-                            if (!haveDistances && lastKnownLocation != null) {
-                                getDistances(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(), recommendations)
-                                        .subscribeOn(Schedulers.io())
-                                        .observeOn(AndroidSchedulers.mainThread())
-                                        .subscribeWith(new DisposableObserver<List<Location>>() {
-                                            @Override
-                                            public void onNext(@io.reactivex.rxjava3.annotations.NonNull List<Location> locations) {
-                                                if (locations.size() == recommendations.size()) {
-                                                    for (int i = 0; i < locations.size(); i++) {
-                                                        recommendations.get(i).setDistance(locations.get(i).getDistance());
-                                                    }
-                                                }
-                                            }
-
-                                            @Override
-                                            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
-                                                Log.e(DistanceService.TAG, e.getMessage());
-                                            }
-
-                                            @Override
-                                            public void onComplete() {
-                                                recommendationAdapter.notifyDataSetChanged();
-                                            }
-                                        });
-                                getDistances(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(), wishlist)
-                                        .subscribeOn(Schedulers.io())
-                                        .observeOn(AndroidSchedulers.mainThread())
-                                        .subscribeWith(new DisposableObserver<List<Location>>() {
-                                            @Override
-                                            public void onNext(@io.reactivex.rxjava3.annotations.NonNull List<Location> locations) {
-                                                if (locations.size() == wishlist.size()) {
-                                                    for (int i = 0; i < locations.size(); i++) {
-                                                        wishlist.get(i).setDistance(locations.get(i).getDistance());
-                                                    }
-                                                }
-                                            }
-
-                                            @Override
-                                            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
-                                                Log.e(DistanceService.TAG, e.getMessage());
-                                            }
-
-                                            @Override
-                                            public void onComplete() {
-                                                wishlistAdapter.notifyDataSetChanged();
-                                            }
-                                        });
-                            }
+                            prepareData();
+//                            if (lastKnownLocation != null) {
+//                                getDistances(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(), recommendations)
+//                                        .subscribeOn(Schedulers.io())
+//                                        .observeOn(AndroidSchedulers.mainThread())
+//                                        .subscribeWith(new DisposableObserver<List<Location>>() {
+//                                            @Override
+//                                            public void onNext(@io.reactivex.rxjava3.annotations.NonNull List<Location> locations) {
+//                                                if (locations.size() == recommendations.size()) {
+//                                                    for (int i = 0; i < locations.size(); i++) {
+//                                                        recommendations.get(i).setDistance(locations.get(i).getDistance());
+//                                                    }
+//                                                }
+//                                            }
+//
+//                                            @Override
+//                                            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+//                                                Log.e(DistanceService.TAG, e.getMessage());
+//                                            }
+//
+//                                            @Override
+//                                            public void onComplete() {
+//                                                recommendationAdapter.notifyDataSetChanged();
+//                                            }
+//                                        });
+//                                getDistances(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(), wishlist)
+//                                        .subscribeOn(Schedulers.io())
+//                                        .observeOn(AndroidSchedulers.mainThread())
+//                                        .subscribeWith(new DisposableObserver<List<Location>>() {
+//                                            @Override
+//                                            public void onNext(@io.reactivex.rxjava3.annotations.NonNull List<Location> locations) {
+//                                                if (locations.size() == wishlist.size()) {
+//                                                    for (int i = 0; i < locations.size(); i++) {
+//                                                        wishlist.get(i).setDistance(locations.get(i).getDistance());
+//                                                    }
+//                                                }
+//                                            }
+//
+//                                            @Override
+//                                            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+//                                                Log.e(DistanceService.TAG, e.getMessage());
+//                                            }
+//
+//                                            @Override
+//                                            public void onComplete() {
+//                                                wishlistAdapter.notifyDataSetChanged();
+//                                            }
+//                                        });
+//                            }
                         }
                     }
                 });
@@ -328,7 +328,9 @@ public class RecommendActivity extends AppCompatActivity {
             @Override
             public void subscribe(@io.reactivex.rxjava3.annotations.NonNull ObservableEmitter<List<Location>> emitter) {
                 try {
-                    List<Location> result = distanceService.getDistance(latitude, longitude, locations);
+
+                    System.out.println("Location from ob:" + locations);
+                    List<Location> result = distanceService.getDistances(latitude, longitude, locations);
                     emitter.onNext(result);
                     emitter.onComplete();
                 } catch (Exception e) {

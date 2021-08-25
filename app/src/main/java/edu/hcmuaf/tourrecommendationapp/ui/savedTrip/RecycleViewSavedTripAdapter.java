@@ -76,7 +76,7 @@ public class RecycleViewSavedTripAdapter extends RecyclerView.Adapter<RecycleVie
 
                             @Override
                             public void onComplete() {
-                                notifyDataSetChanged();
+                                notifyItemRemoved(holder.getAdapterPosition());
                             }
                         });
 

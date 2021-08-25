@@ -81,7 +81,7 @@ public class RecycleViewWishlistAdapter extends RecyclerView.Adapter<RecycleView
 
                             @Override
                             public void onComplete() {
-                                notifyDataSetChanged();
+                                notifyItemRemoved(holder.getAdapterPosition());
                             }
                         });
             }

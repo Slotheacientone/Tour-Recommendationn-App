@@ -35,11 +35,13 @@ public class DistanceService {
         return mInstance;
     }
 
-    public List<Location> getDistance(double latitude, double longitude, List<Location> locations) throws ExecutionException, InterruptedException, IOException {
+    public List<Location> getDistances(double latitude, double longitude, List<Location> locations) throws ExecutionException, InterruptedException, IOException {
         HttpUrl.Builder urlBuilder
                 = HttpUrl.parse(Resource.getString(R.string.base_api_uri)
                 + Resource.getString(R.string.distance_api_path)
                 + Resource.getString(R.string.get_distances_api_uri)).newBuilder();
+        String json = Utils.toJson(new DistanceRequest(latitude, longitude, locations));
+        System.out.println(json);
         RequestBody requestBody = RequestBody.create(Utils.toJson(new DistanceRequest(latitude, longitude, locations)), ApiClient.JSON);
         String url = urlBuilder.build().toString();
         Request request = new Request.Builder()
@@ -51,7 +53,9 @@ public class DistanceService {
         Type recommendationsType = new TypeToken<List<Location>>() {
         }.getType();
         if (response != null && response.isSuccessful()) {
-            return Utils.fromJson(response.body().string(), recommendationsType);
+            String r = response.body().string();
+            System.out.println(r);
+            return Utils.fromJson(r, recommendationsType);
         }
         return new ArrayList<Location>();
     }

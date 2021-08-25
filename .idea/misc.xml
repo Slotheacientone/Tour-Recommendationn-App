@@ -5,6 +5,7 @@
       <map>
         <entry key="../../../../../layout/custom_preview.xml" value="0.36770833333333336" />
         <entry key="app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.36875" />
+        <entry key="app/src/main/res/drawable/ic_baseline_current_location_24.xml" value="0.36875" />
         <entry key="app/src/main/res/drawable/ic_baseline_recommend_24.xml" value="0.36875" />
         <entry key="app/src/main/res/layout/activity_location_detail.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.2980072463768116" />

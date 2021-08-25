@@ -50,7 +50,7 @@ public class RecycleViewWishlistRecommendationAdapter extends RecyclerView.Adapt
         holder.locationNumberOfPeopleRating.setText(String.valueOf(wishlist.get(position).getNumberOfPeopleRating()));
         holder.deleteButton.setVisibility(View.GONE);
         if (wishlist.get(position).getDistance() != -1 && wishlist.get(position).getDistance() != 0) {
-            holder.locationDistance.setText("Khoảng cách: " + wishlist.get(position).getDistance());
+            holder.locationDistance.setText("Khoảng cách: " + wishlist.get(position).getDistance() + " km");
         }
         holder.locationItemCardView.setOnClickListener(new View.OnClickListener() {
             @Override

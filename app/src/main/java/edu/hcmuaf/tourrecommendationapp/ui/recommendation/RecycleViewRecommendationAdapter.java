@@ -48,7 +48,7 @@ public class RecycleViewRecommendationAdapter extends RecyclerView.Adapter<Recyc
         holder.locationRatingBar.setRating(recommendations.get(position).getRatings());
         holder.locationNumberOfPeopleRating.setText(String.valueOf(recommendations.get(position).getNumberOfPeopleRating()));
         if (recommendations.get(position).getDistance() != -1 && recommendations.get(position).getDistance() != 0) {
-            holder.locationDistance.setText("Khoảng cách: " + recommendations.get(position).getDistance());
+            holder.locationDistance.setText("Khoảng cách: " + recommendations.get(position).getDistance() + " km");
         }
         holder.deleteButton.setVisibility(View.GONE);
         holder.locationItemCardView.setOnClickListener(new View.OnClickListener() {

@@ -11,6 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -40,10 +41,12 @@ public class DirectionsApiService {
         return mInstance;
     }
 
-    public Route getRoute(android.location.Location origin, List<Location> waypoints) throws IOException, JSONException {
+    public Route getRoute(android.location.Location origin, List<Location> locations) throws IOException, JSONException {
         Route route = null;
-        sortService.sortByDistance(waypoints);
-        Location destination = waypoints.get(waypoints.size() - 1);
+        sortService.sortByDistance(locations);
+        Location destination = locations.get(locations.size() - 1);
+        List<Location> waypoints = new ArrayList<>();
+        waypoints.addAll(locations);
         waypoints.remove(destination);
         String apiKey = Resource.getString(R.string.google_maps_key);
         HttpUrl.Builder urlBuilder
@@ -86,6 +89,7 @@ public class DirectionsApiService {
     public String prepareWaypointsQueryParameter(List<Location> waypoints) {
         String waypointsQueryParameter = "";
         if (waypoints.size() > 0) {
+
             waypointsQueryParameter = "optimize:true";
             for (Location location : waypoints) {
                 waypointsQueryParameter += "|" + prepareLocationQueryParameter(location);

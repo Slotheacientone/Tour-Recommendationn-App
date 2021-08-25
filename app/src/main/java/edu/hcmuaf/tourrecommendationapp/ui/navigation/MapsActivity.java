@@ -1,11 +1,14 @@
 package edu.hcmuaf.tourrecommendationapp.ui.navigation;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
+import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,23 +16,26 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
-import org.json.JSONException;
-
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import edu.hcmuaf.tourrecommendationapp.R;
 import edu.hcmuaf.tourrecommendationapp.model.Route;
@@ -50,27 +56,18 @@ public class MapsActivity extends AppCompatActivity implements
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     private boolean locationPermissionGranted;
     private Location lastKnownLocation;
-    private LatLng defaultLocation = new LatLng(10.762622, 106.660172);
-    private float DEFAULT_ZOOM = 15;
     private static final String KEY_CAMERA_POSITION = "camera_position";
     private static final String KEY_LOCATION = "location";
     private CameraPosition cameraPosition;
     private static final String TAG = MapsActivity.class.getSimpleName();
     private DirectionsApiService directionsApiService;
 
-
-    // [START maps_poly_activity_on_polyline_click]
-//    private static final int PATTERN_GAP_LENGTH_PX = 20;
-//    private static final PatternItem DOT = new Dot();
-//    private static final PatternItem GAP = new Gap(PATTERN_GAP_LENGTH_PX);
-
-    // Create a stroke pattern of a gap followed by a dot.
-    //  private static final List<PatternItem> PATTERN_POLYLINE_DOTTED = Arrays.asList(GAP, DOT);
-
-
     // The entry point to the Fused Location Provider.
     private FusedLocationProviderClient fusedLocationProviderClient;
     private SavedTrip savedTrip;
+    private Marker currentLocationMarker;
+    private List<Marker> markers;
+    private Polyline polyline;
 
 
     @Override
@@ -88,12 +85,24 @@ public class MapsActivity extends AppCompatActivity implements
         lastKnownLocation = intent.getParcelableExtra("location");
         // Construct a FusedLocationProviderClient.
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        markers = new ArrayList<>();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        getSupportActionBar().setTitle("Saved trip detail");
+        getSupportActionBar().setTitle("Bản đồ");
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -105,6 +114,7 @@ public class MapsActivity extends AppCompatActivity implements
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
      */
+    @SuppressLint("PotentialBehaviorOverride")
     @SneakyThrows
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -114,13 +124,60 @@ public class MapsActivity extends AppCompatActivity implements
         getLocationPermission();
 
         // Get the current location of the device and set the position of the map.
-        getDeviceLocation();
+        getInitDeviceLocation();
 
         addMarker();
 
-        // Set listeners for click events.
-//        googleMap.setOnPolylineClickListener(this);
+        startCurrentLocationUpdate();
 
+        map.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+            @Override
+            public void onMarkerDragStart(Marker marker) {
+
+            }
+
+            @Override
+            public void onMarkerDrag(Marker marker) {
+
+            }
+
+            @Override
+            public void onMarkerDragEnd(Marker marker) {
+                for (edu.hcmuaf.tourrecommendationapp.model.Location location : savedTrip.getSavedTripLocations()) {
+                    if (location.getLocationName().equalsIgnoreCase(marker.getTitle())) {
+                        location.setLocationLatitude(marker.getPosition().latitude);
+                        location.setLocationLongitude(marker.getPosition().longitude);
+                        getRoute(lastKnownLocation, savedTrip.getSavedTripLocations())
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribeWith(new DisposableObserver<Route>() {
+                                    @Override
+                                    public void onNext(@io.reactivex.rxjava3.annotations.NonNull Route route) {
+                                        if (route != null) {
+                                            polyline.remove();
+                                            // Add polylines to the map.
+                                            // Polylines are useful to show a route or some other connection between points.
+                                            polyline = map.addPolyline(new PolylineOptions()
+                                                    .clickable(false)
+                                                    .addAll(route.getPolyline()));
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+                                        Log.e(DirectionsApiService.TAG, e.getMessage());
+                                    }
+
+                                    @Override
+                                    public void onComplete() {
+
+                                    }
+                                });
+
+                    }
+                }
+            }
+        });
     }
 
     @Override
@@ -166,7 +223,7 @@ public class MapsActivity extends AppCompatActivity implements
         }
     }
 
-    private void getDeviceLocation() {
+    private void getInitDeviceLocation() {
         /*
          * Get the best and most recent location of the device, which may be null in rare
          * cases when a location is not available.
@@ -182,9 +239,6 @@ public class MapsActivity extends AppCompatActivity implements
                             // Set the map's camera position to the current location of the device.
                             lastKnownLocation = task.getResult();
                             if (lastKnownLocation != null) {
-                                map.addMarker(new MarkerOptions()
-                                        .position(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()))
-                                        .title("Vị trí hiện tại"));
                                 getRoute(lastKnownLocation, savedTrip.getSavedTripLocations())
                                         .subscribeOn(Schedulers.io())
                                         .observeOn(AndroidSchedulers.mainThread())
@@ -194,7 +248,7 @@ public class MapsActivity extends AppCompatActivity implements
                                                 if (route != null) {
                                                     // Add polylines to the map.
                                                     // Polylines are useful to show a route or some other connection between points.
-                                                    map.addPolyline(new PolylineOptions()
+                                                    polyline = map.addPolyline(new PolylineOptions()
                                                             .clickable(false)
                                                             .addAll(route.getPolyline()));
                                                     map.moveCamera(CameraUpdateFactory.newLatLngBounds(route.getBounds(), 0));
@@ -212,13 +266,6 @@ public class MapsActivity extends AppCompatActivity implements
                                             }
                                         });
                             }
-                        } else {
-//                            Log.d(TAG, "Current location is null. Using defaults.");
-//                            Log.e(TAG, "Exception: %s", task.getException());
-//                            map.moveCamera(CameraUpdateFactory
-//                                    .newLatLngZoom(defaultLocation, DEFAULT_ZOOM));
-//                            map.getUiSettings().setMyLocationButtonEnabled(false);
-                            finish();
                         }
                     }
                 });
@@ -228,54 +275,57 @@ public class MapsActivity extends AppCompatActivity implements
         }
     }
 
-//    private void updateLocationUI() {
-//        if (map == null) {
-//            return;
-//        }
-//        try {
-//            if (locationPermissionGranted) {
-//                map.setMyLocationEnabled(true);
-//                map.getUiSettings().setMyLocationButtonEnabled(true);
-//            } else {
-//                map.setMyLocationEnabled(false);
-//                map.getUiSettings().setMyLocationButtonEnabled(false);
-//                lastKnownLocation = null;
-//                getLocationPermission();
-//            }
-//        } catch (SecurityException e) {
-//            Log.e("Exception: %s", e.getMessage());
-//        }
-//    }
 
     public void addMarker() {
         List<edu.hcmuaf.tourrecommendationapp.model.Location> locations = savedTrip.getSavedTripLocations();
         if (lastKnownLocation != null) {
-            map.addMarker(new MarkerOptions()
+            currentLocationMarker = map.addMarker(new MarkerOptions()
                     .position(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()))
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_baseline_current_location_24))
                     .title("Vị trí hiện tại"));
         }
         for (edu.hcmuaf.tourrecommendationapp.model.Location location : locations) {
-            map.addMarker(new MarkerOptions()
-                    .position(new LatLng(location.getLocationLatitude(), location.getLocationLongitude()))
-                    .title(location.getLocationName()));
+            if (location.getLocationLatitude() != 0.0 && location.getLocationLongitude() != 0.0) {
+                Marker marker = map.addMarker(new MarkerOptions()
+                        .position(new LatLng(location.getLocationLatitude(), location.getLocationLongitude()))
+                        .title(location.getLocationName()).draggable(true));
+                markers.add(marker);
+            }
         }
     }
 
 
-//    @Override
-//    public void onPolylineClick(Polyline polyline) {
-//        // Flip from solid stroke to dotted stroke pattern.
-//        if ((polyline.getPattern() == null) || (!polyline.getPattern().contains(DOT))) {
-//            polyline.setPattern(PATTERN_POLYLINE_DOTTED);
-//        } else {
-//            // The default pattern is a solid stroke.
-//            polyline.setPattern(null);
-//        }
-//
-//        Toast.makeText(this, "Route type " + polyline.getTag().toString(),
-//                Toast.LENGTH_SHORT).show();
-//
-//    }
+    private void startCurrentLocationUpdate() {
+        LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setInterval(5000);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+            return;
+        }
+        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
+    }
+
+
+    private final LocationCallback locationCallback = new LocationCallback() {
+        @Override
+        public void onLocationResult(LocationResult locationResult) {
+            super.onLocationResult(locationResult);
+            if (locationResult.getLastLocation() == null) {
+                return;
+            }
+            lastKnownLocation = locationResult.getLastLocation();
+            if (currentLocationMarker != null) {
+                currentLocationMarker.setPosition(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()));
+            } else {
+                currentLocationMarker = map.addMarker(new MarkerOptions()
+                        .position(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()))
+                        .title("Vị trí hiện tại"));
+            }
+        }
+    };
 
     private Observable<Route> getRoute(Location origin, List<edu.hcmuaf.tourrecommendationapp.model.Location> waypoints) {
         return Observable.create(new ObservableOnSubscribe<Route>() {
@@ -291,4 +341,5 @@ public class MapsActivity extends AppCompatActivity implements
             }
         });
     }
+
 }
