@@ -65,7 +65,8 @@ public class WishlistFragment extends Fragment {
         user = SharedPrefs.getInstance().get("myInfo", User.class);
         adapter = new RecycleViewWishlistAdapter(getContext(), wishlist);
         wishlistRecycleView.setAdapter(adapter);
-        getWishlist(user.getId()).subscribeOn(Schedulers.io())
+        getWishlist(user.getId())
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new DisposableObserver<List<Location>>() {
             @Override
@@ -87,16 +88,13 @@ public class WishlistFragment extends Fragment {
     }
 
     private Observable<List<Location>> getWishlist(long userId) {
-        return Observable.create(new ObservableOnSubscribe<List<Location>>() {
-            @Override
-            public void subscribe(@io.reactivex.rxjava3.annotations.NonNull ObservableEmitter<List<Location>> emitter) throws Throwable {
-                try {
-                    List<Location> result = wishlistService.getWishlist(userId);
-                    emitter.onNext(result);
-                    emitter.onComplete();
-                } catch (Exception e) {
-                    emitter.onError(e);
-                }
+        return Observable.create(emitter -> {
+            try {
+                List<Location> result = wishlistService.getWishlist(userId);
+                emitter.onNext(result);
+                emitter.onComplete();
+            } catch (Exception e) {
+                emitter.onError(e);
             }
         });
     }

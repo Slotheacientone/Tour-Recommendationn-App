@@ -4,13 +4,28 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:accessibilityHeading="true"
     tools:context=".ui.home.HomeFragment">
 
-    <Button
-        android:id="@+id/button"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/topRatingRecycleView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtTopRating" />
+
+    <TextView
+        android:id="@+id/txtTopRating"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Button"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:accessibilityHeading="true"
+        android:text="@string/top_rating_location"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

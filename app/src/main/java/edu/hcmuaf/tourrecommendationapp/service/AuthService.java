@@ -103,7 +103,7 @@ public class AuthService {
                 .post(requestBody)
                 .build();
 
-        ApiResponse response = ApiClient.sendAsyncTemp(request);
+        Response response = ApiClient.sendAsync(request).get();
         if (response == null) {
             throw new IOException("Send request fail: " + request);
         }

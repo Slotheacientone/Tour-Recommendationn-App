@@ -38,7 +38,7 @@ public class WishlistService {
                 = HttpUrl.parse(Resource.getString(R.string.base_api_uri)
                 + Resource.getString(R.string.wishlist_api_path)
                 + Resource.getString(R.string.add_location_to_wishlist_api_uri)).newBuilder();
-        urlBuilder.addQueryParameter("userId",String.valueOf(userId));
+        urlBuilder.addQueryParameter("userId", String.valueOf(userId));
         urlBuilder.addQueryParameter("locationId", String.valueOf(locationId));
         String url = urlBuilder.build().toString();
         Request request = new Request.Builder()
@@ -52,7 +52,7 @@ public class WishlistService {
         return false;
     }
 
-    public List<Location> getWishlist(long userId) throws IOException{
+    public List<Location> getWishlist(long userId) throws IOException {
         HttpUrl.Builder urlBuilder
                 = HttpUrl.parse(Resource.getString(R.string.base_api_uri)
                 + Resource.getString(R.string.wishlist_api_path)
@@ -66,7 +66,7 @@ public class WishlistService {
         Response response = ApiClient.getClient().newCall(request).execute();
         Type wishlistType = new TypeToken<List<Location>>() {
         }.getType();
-        if (response!=null && response.isSuccessful()) {
+        if (response != null && response.isSuccessful()) {
             return Utils.fromJson(response.body().string(), wishlistType);
         }
         return new ArrayList<Location>();
@@ -77,7 +77,7 @@ public class WishlistService {
                 = HttpUrl.parse(Resource.getString(R.string.base_api_uri)
                 + Resource.getString(R.string.wishlist_api_path)
                 + Resource.getString(R.string.delete_location_from_wishlist_api_uri)).newBuilder();
-        urlBuilder.addQueryParameter("userId",String.valueOf(userId));
+        urlBuilder.addQueryParameter("userId", String.valueOf(userId));
         urlBuilder.addQueryParameter("locationId", String.valueOf(locationId));
         String url = urlBuilder.build().toString();
         Request request = new Request.Builder()
@@ -107,7 +107,7 @@ public class WishlistService {
         Response response = ApiClient.getClient().newCall(request).execute();
         Type wishlistType = new TypeToken<List<Location>>() {
         }.getType();
-        if (response!=null && response.isSuccessful()) {
+        if (response != null && response.isSuccessful()) {
             return Utils.fromJson(response.body().string(), wishlistType);
         }
         return new ArrayList<Location>();

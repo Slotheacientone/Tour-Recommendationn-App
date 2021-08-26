@@ -1,14 +1,14 @@
 <resources>
     <string name="app_name">Tour Recommendation App</string>
     <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
+    <string name="title_dashboard">Search</string>
     <string name="title_notifications">Notifications</string>
     <string name="failed">Failed. Please try again</string>
 
 
     <string name="hello_blank_fragment">Empty</string>
     <!-- Uri -->
-    <string name="base_api_uri">http://192.168.1.22:8080</string>
+    <string name="base_api_uri">http://192.168.0.111:8080</string>
     <!--    <string name="base_api_uri">http://192.168.43.216:8080</string>-->
 
     <!-- User api -->
@@ -58,4 +58,6 @@
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="title_activity_maps">MapsActivity</string>
+
+    <string name="top_rating_location">TOP RATING</string>
 </resources>

@@ -1,62 +1,60 @@
 package edu.hcmuaf.tourrecommendationapp.service;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import edu.hcmuaf.tourrecommendationapp.dto.ProfileRequest;
+import edu.hcmuaf.tourrecommendationapp.model.Location;
 import edu.hcmuaf.tourrecommendationapp.model.User;
 import edu.hcmuaf.tourrecommendationapp.util.ApiClient;
 import edu.hcmuaf.tourrecommendationapp.util.SharedPrefs;
 import edu.hcmuaf.tourrecommendationapp.util.Utils;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class UserService {
-    private static final String USER_PATH = "/api/users";
-    private static UserService mInstance;
+public class LocationService {
+    private static final String USER_PATH = "/api/locations";
+    private static LocationService mInstance;
     SharedPrefs sharedPrefs;
 
-    private UserService() {
+    private LocationService() {
         sharedPrefs = SharedPrefs.getInstance();
     }
 
-    public static UserService getInstance() {
+    public static LocationService getInstance() {
         if (mInstance == null)
-            mInstance = new UserService();
+            mInstance = new LocationService();
         return mInstance;
     }
 
-    public User getInfo(String username) throws ExecutionException, InterruptedException, IOException {
+    public List<Location> getTopRatingLocation(int limit) throws IOException, ExecutionException, InterruptedException {
         HttpUrl.Builder urlBuilder
-                = HttpUrl.parse(Utils.BASE_URL + USER_PATH).newBuilder();
-        urlBuilder.addPathSegment(username);
+                = HttpUrl.parse(Utils.BASE_URL + USER_PATH + "/top").newBuilder();
+        urlBuilder.addQueryParameter("limit", String.valueOf(limit));
         String url = urlBuilder.build().toString();
 
         Request request = new Request.Builder()
                 .url(url)
                 .build();
-
         Response response = ApiClient.sendAsync(request).get();
-        return Utils.fromJson(response.body().string(), User.class);
+        return Arrays.asList(Utils.fromJson(response.body().string(), Location[].class));
     }
 
-
-    public boolean updateProfile(ProfileRequest profileRequest) throws ExecutionException, InterruptedException {
-        User myInfo = sharedPrefs.get("myInfo", User.class);
-
+    public List<Location> filter(String query) throws IOException, ExecutionException, InterruptedException {
         HttpUrl.Builder urlBuilder
                 = HttpUrl.parse(Utils.BASE_URL + USER_PATH).newBuilder();
-        urlBuilder.addPathSegment(myInfo.getUsername());
+        urlBuilder.addQueryParameter("name", String.valueOf(query));
         String url = urlBuilder.build().toString();
 
-        RequestBody requestBody = RequestBody.create(Utils.toJson(profileRequest), ApiClient.JSON);
         Request request = new Request.Builder()
                 .url(url)
-                .put(requestBody)
                 .build();
         Response response = ApiClient.sendAsync(request).get();
-        return response.isSuccessful();
+        return Arrays.asList(Utils.fromJson(response.body().string(), Location[].class));
     }
+
+
 }

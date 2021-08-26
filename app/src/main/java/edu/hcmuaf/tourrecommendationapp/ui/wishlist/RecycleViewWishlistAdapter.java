@@ -86,13 +86,10 @@ public class RecycleViewWishlistAdapter extends RecyclerView.Adapter<RecycleView
                         });
             }
         });
-        holder.locationItemCardView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, LocationDetailActivity.class);
-                intent.putExtra("location", wishList.get(holder.getAdapterPosition()));
-                context.startActivity(intent);
-            }
+        holder.locationItemCardView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, LocationDetailActivity.class);
+            intent.putExtra("location", wishList.get(holder.getAdapterPosition()));
+            context.startActivity(intent);
         });
         Picasso.get().load(wishList.get(position).getLocationImageUrl()).transform(new CropSquareTransformation()).into(holder.locationImage);
 

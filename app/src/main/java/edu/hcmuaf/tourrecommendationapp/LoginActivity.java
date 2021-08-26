@@ -95,17 +95,16 @@ public class LoginActivity extends AppCompatActivity {
 //        startActivity(intent);
 //    }
 
-    public Observable<Boolean> submit(LoginRequest loginRequest){
-        return Observable.create(new ObservableOnSubscribe<Boolean>() {
-            @Override
-            public void subscribe(@NonNull ObservableEmitter<Boolean> emitter){
-                try {
-                    boolean isSuccess = authService.login(loginRequest);
-                    emitter.onNext(isSuccess);
-                    emitter.onComplete();
-                } catch (Exception e) {
-                    emitter.onError(e);
-                }
+    public Observable<Boolean> submit(LoginRequest loginRequest) {
+        return Observable.create(emitter -> {
+            try {
+                boolean isSuccess = authService.login(loginRequest);
+                emitter.onNext(isSuccess);
+                if (!isSuccess)
+                    return;
+                emitter.onComplete();
+            } catch (Exception e) {
+                emitter.onError(e);
             }
         });
     }

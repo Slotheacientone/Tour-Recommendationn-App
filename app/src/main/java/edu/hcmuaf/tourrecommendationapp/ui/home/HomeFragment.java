@@ -1,48 +1,93 @@
 package edu.hcmuaf.tourrecommendationapp.ui.home;
 
-import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import edu.hcmuaf.tourrecommendationapp.R;
+
 import edu.hcmuaf.tourrecommendationapp.model.Location;
-import edu.hcmuaf.tourrecommendationapp.ui.locationDetail.LocationDetailActivity;
+import edu.hcmuaf.tourrecommendationapp.service.LocationService;
+import edu.hcmuaf.tourrecommendationapp.service.WishlistService;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.observers.DisposableObserver;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+import lombok.SneakyThrows;
+
 
 public class HomeFragment extends Fragment {
+    private RecycleViewTopRatingAdapter topRatingAdapter;
+    private RecyclerView topRatingRecycleView;
+    private LocationService locationService;
+    private List<Location> topRatingLocation;
 
-    private Button button;
+    public HomeFragment() {
+    }
+
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_home, container, false);
     }
 
+    @SneakyThrows
     @Override
     public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        button = view.findViewById(R.id.button);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getContext(), LocationDetailActivity.class);
-                Location location = new Location();
-                location.setLocationId(957);
-                location.setLocationName("Đồi cát trắng");
-                location.setLocationImageUrl("https://media-cdn.tripadvisor.com/media/photo-o/12/f0/22/ff/img-20180512-213049-591.jpg");
-                location.setRatings(4);
-                location.setNumberOfPeopleRating(81);
-                intent.putExtra("location", location);
-                startActivity(intent);
+        //DI
+        locationService = LocationService.getInstance();
+        topRatingLocation = new ArrayList<>();
+
+        topRatingRecycleView = view.findViewById(R.id.topRatingRecycleView);
+        topRatingAdapter = new RecycleViewTopRatingAdapter(getContext(), topRatingLocation);
+        topRatingRecycleView.setAdapter(topRatingAdapter);
+
+        getTopRatingLocation(5)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableObserver<List<Location>>() {
+                    @Override
+                    public void onNext(@io.reactivex.rxjava3.annotations.NonNull List<Location> locations) {
+                        topRatingLocation.addAll(locations);
+                    }
+
+                    @Override
+                    public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        topRatingAdapter.notifyDataSetChanged();
+                    }
+                });
+        topRatingRecycleView.setLayoutManager(new LinearLayoutManager(getContext()));
+    }
+
+    private Observable<List<Location>> getTopRatingLocation(int limit) {
+        return Observable.create(emitter -> {
+            try {
+                List<Location> result = locationService.getTopRatingLocation(limit);
+                emitter.onNext(result);
+                emitter.onComplete();
+            } catch (Exception e) {
+                emitter.onError(e);
             }
         });
     }
+
 }
