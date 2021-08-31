@@ -53,9 +53,7 @@ public class DistanceService {
         Type recommendationsType = new TypeToken<List<Location>>() {
         }.getType();
         if (response != null && response.isSuccessful()) {
-            String r = response.body().string();
-            System.out.println(r);
-            return Utils.fromJson(r, recommendationsType);
+            return Utils.fromJson(response.body().string(), recommendationsType);
         }
         return new ArrayList<Location>();
     }

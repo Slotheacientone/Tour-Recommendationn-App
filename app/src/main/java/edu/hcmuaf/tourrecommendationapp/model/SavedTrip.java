@@ -14,7 +14,7 @@ public class SavedTrip implements Serializable {
     public String getSavedTripName() {
         String result = savedTripLocations.get(0).getLocationName();
         for (int i =1;i<savedTripLocations.size();i++) {
-            result += "->" + savedTripLocations.get(i).getLocationName();
+            result += " -> " + savedTripLocations.get(i).getLocationName();
         }
         return result;
     }

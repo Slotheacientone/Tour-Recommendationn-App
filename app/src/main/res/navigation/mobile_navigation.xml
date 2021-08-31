@@ -24,14 +24,9 @@
         tools:layout="@layout/fragment_saved_trip"/>
 
     <fragment
-        android:id="@+id/navigation_dashboard"
-        android:name="edu.hcmuaf.tourrecommendationapp.ui.dashboard.DashboardFragment"
+        android:id="@+id/navigation_search"
+        android:name="edu.hcmuaf.tourrecommendationapp.ui.dashboard.SearchFragment"
         android:label="@string/title_dashboard"
-        tools:layout="@layout/fragment_dashboard" />
+        tools:layout="@layout/fragment_search" />
 
-<!--    <fragment
-        android:id="@+id/navigation_notifications"
-        android:name="edu.hcmuaf.tourrecommendationapp.ui.notifications.NotificationsFragment"
-        android:label="@string/title_notifications"
-        tools:layout="@layout/fragment_notifications" />-->
 </navigation>

@@ -30,4 +30,6 @@ public class Location implements Serializable {
     private int wishListOrder;
 
     private boolean isSelected=false;
+
+    private String placeId;
 }

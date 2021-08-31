@@ -64,7 +64,6 @@ public class RecommendActivity extends AppCompatActivity {
     private RecommendateService recommendateService;
     private WishlistService wishlistService;
     private DistanceService distanceService;
-    private boolean haveDistances = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +91,7 @@ public class RecommendActivity extends AppCompatActivity {
                     sortService.sortByWishListOrder(wishlist);
                 }
                 recommendationAdapter.notifyDataSetChanged();
+                wishlistAdapter.notifyDataSetChanged();
             }
         });
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
@@ -178,6 +178,7 @@ public class RecommendActivity extends AppCompatActivity {
                 }
                 if (selectedLocations.size() > 0) {
                     SavedTrip savedTrip = new SavedTrip();
+                    System.out.println("selected: " + selectedLocations);
                     savedTrip.setSavedTripLocations(selectedLocations);
                     savedTrip.setUserId(user.getId());
                     saveTrip(savedTrip).subscribeOn(Schedulers.io())

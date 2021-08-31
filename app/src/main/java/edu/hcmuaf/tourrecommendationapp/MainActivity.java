@@ -10,14 +10,11 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.internal.NavigationMenuView;
 
 import edu.hcmuaf.tourrecommendationapp.dto.LoginResponse;
 import edu.hcmuaf.tourrecommendationapp.service.AuthService;
-import edu.hcmuaf.tourrecommendationapp.ui.locationDetail.LocationDetailActivity;
 import edu.hcmuaf.tourrecommendationapp.ui.recommendation.RecommendActivity;
 import edu.hcmuaf.tourrecommendationapp.util.SharedPrefs;
 
@@ -44,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_home, R.id.navigation_wishlist, R.id.navigation_saved_trip, R.id.navigation_dashboard)
+                R.id.navigation_home, R.id.navigation_wishlist, R.id.navigation_saved_trip, R.id.navigation_search)
                 .build();
 //        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
 //                R.id.navigation_home, R.id.navigation_wishlist, R.id.navigation_saved_trip, R.id.navigation_dashboard, R.id.navigation_notifications)

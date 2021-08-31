@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/current_location_menu_item"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_baseline_location_on_24"
+        android:title="Vị trí hiện tại">
+    </item>
+    <item
+        android:id="@+id/find_restaurants"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_baseline_restaurant_24"
+        android:title="Tìm nhà hàng">
+    </item>
+    <item
+        android:id="@+id/find_hotels"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_baseline_hotel_24"
+        android:title="Tìm khách sạn">
+    </item>
+</menu>

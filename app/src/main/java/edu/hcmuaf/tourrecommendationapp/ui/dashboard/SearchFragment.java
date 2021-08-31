@@ -13,7 +13,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -23,14 +22,14 @@ import edu.hcmuaf.tourrecommendationapp.R;
 
 import edu.hcmuaf.tourrecommendationapp.ui.home.RecycleViewTopRatingAdapter;
 
-public class DashboardFragment extends Fragment {
+public class SearchFragment extends Fragment {
     private RecyclerView listView;
     private RecycleViewTopRatingAdapter adapter;
     private SearchView searchView;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_dashboard, container, false);
+        return inflater.inflate(R.layout.fragment_search, container, false);
     }
 
     @Override

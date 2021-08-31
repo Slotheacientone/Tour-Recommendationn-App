@@ -8,7 +8,7 @@
 
     <string name="hello_blank_fragment">Empty</string>
     <!-- Uri -->
-    <string name="base_api_uri">http://192.168.0.111:8080</string>
+    <string name="base_api_uri">http://192.168.1.22:8080</string>
     <!--    <string name="base_api_uri">http://192.168.43.216:8080</string>-->
 
     <!-- User api -->
@@ -39,11 +39,15 @@
     <string name="get_recommendation_api_uri">/get-recommendations</string>
 
     <!-- Direction api -->
-    <string name="direction_api_path">https://maps.googleapis.com/maps/api/directions/json?</string>
+    <string name="direction_api_path">https://maps.googleapis.com/maps/api/directions/json</string>
 
     <!-- Distance api -->
     <string name="distance_api_path">/api/distance</string>
     <string name="get_distances_api_uri">/get-distances</string>
+
+    <!-- Nearby place api -->
+    <string name="nearby_place_api_path">https://maps.googleapis.com/maps/api/place/nearbysearch/json</string>
+    <string name="detail_place_api_path">https://maps.googleapis.com/maps/api/place/details/json</string>
 
     <string name="login_username_hint">Username</string>
     <string name="login_password_hint">Password</string>

@@ -68,6 +68,7 @@ public class RatingsFragment extends Fragment {
     private DateFormat dateFormat;
     private Rating currentUserRating = null;
     private boolean firstTimeSetRatingBar = true;
+    private boolean isUserSetRatingBar = true;
 
 
     public RatingsFragment() {
@@ -120,6 +121,7 @@ public class RatingsFragment extends Fragment {
                                 if (aBoolean) {
                                     hideCurrentComment(true);
                                     currentUserRating = null;
+                                    isUserSetRatingBar = false;
                                     ratingBar.setRating(0F);
                                 } else {
                                     Toast.makeText(context, "Failed", Toast.LENGTH_LONG).show();
@@ -141,7 +143,7 @@ public class RatingsFragment extends Fragment {
         ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
             @Override
             public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
-                if (rating != 0 && !firstTimeSetRatingBar) {
+                if (isUserSetRatingBar) {
                     Intent intent = new Intent(context, RatingActivity.class);
                     intent.putExtra("userId", user.getId());
                     intent.putExtra("locationId", locationId);
@@ -151,7 +153,7 @@ public class RatingsFragment extends Fragment {
                     }
                     startForResult.launch(intent);
                 } else {
-                    firstTimeSetRatingBar = false;
+                    isUserSetRatingBar = true;
                 }
             }
         });
@@ -166,9 +168,14 @@ public class RatingsFragment extends Fragment {
                             requestRatings();
                             break;
                         case Activity.RESULT_CANCELED:
+                            isUserSetRatingBar = false;
                             if (currentUserRating != null) {
-                                ratingBar.setRating(currentUserRating.getRating());
+                                if (ratingBar.getRating() != currentUserRating.getRating()) {
+                                    isUserSetRatingBar = false;
+                                    ratingBar.setRating(currentUserRating.getRating());
+                                }
                             } else {
+                                isUserSetRatingBar = false;
                                 ratingBar.setRating(0F);
                             }
                             break;
@@ -187,15 +194,18 @@ public class RatingsFragment extends Fragment {
                         currentUserRating = ratingService.getCurrentUserComment(result);
                         if (currentUserRating != null) {
                             hideCurrentComment(false);
+                            System.out.println(currentUserRating.getAvatar());
                             Picasso.get().load(currentUserRating.getAvatar()).transform(new CropCircleTransformation()).into(currentUserRatingAvatar);
                             currentUserRatingName.setText(currentUserRating.getUserName());
                             currentUserRatingBar.setRating(currentUserRating.getRating());
                             currentUserRatingcomment.setText(currentUserRating.getComment());
                             currentUserRatingDate.setText(dateFormat.format(currentUserRating.getDate()));
+                            isUserSetRatingBar = false;
                             ratingBar.setRating(currentUserRating.getRating());
                         } else {
                             hideCurrentComment(true);
                             currentUserRating = null;
+                            isUserSetRatingBar = false;
                             ratingBar.setRating(0F);
                         }
                         ratings.clear();

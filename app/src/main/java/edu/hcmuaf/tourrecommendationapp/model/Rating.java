@@ -1,5 +1,7 @@
 package edu.hcmuaf.tourrecommendationapp.model;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.Date;
 
 import lombok.Data;
@@ -11,6 +13,7 @@ public class Rating {
 
     private String userName;
 
+    @SerializedName("userImageUrl")
     private String avatar;
 
     /** User rating. */

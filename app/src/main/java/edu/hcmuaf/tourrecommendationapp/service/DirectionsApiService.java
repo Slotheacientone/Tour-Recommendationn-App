@@ -103,7 +103,7 @@ public class DirectionsApiService {
         if (location.getLocationLatitude() != 0.0 && location.getLocationLongitude() != 0.0) {
             locationQueryParameter = location.getLocationLatitude() + "," + location.getLocationLongitude();
         } else {
-            locationQueryParameter = location.getLocationName();
+            locationQueryParameter = location.getLocationName() + ", Vietnam";
         }
         return locationQueryParameter;
     }
