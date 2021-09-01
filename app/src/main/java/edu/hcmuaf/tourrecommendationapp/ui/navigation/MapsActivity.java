@@ -252,7 +252,7 @@ public class MapsActivity extends AppCompatActivity implements
         map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                if (!marker.isDraggable()) {
+                if (!marker.isDraggable() && !marker.getTitle().equalsIgnoreCase("Vị trí hiện tại")) {
                     boolean isFound = false;
                     String placeId = null;
                     for (edu.hcmuaf.tourrecommendationapp.model.Location location : restaurants) {

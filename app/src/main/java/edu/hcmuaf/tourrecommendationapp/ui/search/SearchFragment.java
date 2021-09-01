@@ -1,4 +1,4 @@
-package edu.hcmuaf.tourrecommendationapp.ui.dashboard;
+package edu.hcmuaf.tourrecommendationapp.ui.search;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

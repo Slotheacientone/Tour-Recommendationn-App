@@ -25,7 +25,7 @@
 
     <fragment
         android:id="@+id/navigation_search"
-        android:name="edu.hcmuaf.tourrecommendationapp.ui.dashboard.SearchFragment"
+        android:name="edu.hcmuaf.tourrecommendationapp.ui.search.SearchFragment"
         android:label="@string/title_dashboard"
         tools:layout="@layout/fragment_search" />
 
