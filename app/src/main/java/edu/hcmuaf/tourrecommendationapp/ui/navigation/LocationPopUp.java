@@ -73,20 +73,20 @@ public class LocationPopUp {
                         locationName.setText(locationDetail.getName());
                         ratingBar.setRating(locationDetail.getRating());
                         if(locationDetail.getAddress()!=null) {
-                            address.setText("Địa chỉ: " + locationDetail.getAddress());
+                            address.setText("Address: " + locationDetail.getAddress());
                         }else{
                             address.setVisibility(View.GONE);
                         }
                         if(locationDetail.getPhoneNumber()!=null) {
-                            phoneNumber.setText("Số điện thoại: " + locationDetail.getPhoneNumber());
+                            phoneNumber.setText("Phone number: " + locationDetail.getPhoneNumber());
                         }else{
                             address.setVisibility(View.GONE);
                         }
                         userRatingTotal.setText(String.valueOf(locationDetail.getUserRatingTotal()));
                         if(locationDetail.isOpenNow()){
-                            isOpen.setText("Đang mở");
+                            isOpen.setText("Opening");
                         }else{
-                            isOpen.setText("Đã đóng");
+                            isOpen.setText("Closed");
                         }
                     }
 

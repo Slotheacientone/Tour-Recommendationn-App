@@ -2,28 +2,22 @@ package edu.hcmuaf.tourrecommendationapp.service;
 
 import android.util.Log;
 
-import com.google.gson.reflect.TypeToken;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 import edu.hcmuaf.tourrecommendationapp.R;
-import edu.hcmuaf.tourrecommendationapp.dto.DistanceRequest;
 import edu.hcmuaf.tourrecommendationapp.model.Location;
 import edu.hcmuaf.tourrecommendationapp.model.LocationDetail;
 import edu.hcmuaf.tourrecommendationapp.util.ApiClient;
 import edu.hcmuaf.tourrecommendationapp.util.Resource;
-import edu.hcmuaf.tourrecommendationapp.util.Utils;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class NearbyPlacesAPIService {

@@ -105,7 +105,7 @@ public class MapsActivity extends AppCompatActivity implements
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        getSupportActionBar().setTitle("Bản đồ");
+        getSupportActionBar().setTitle("Map");
     }
 
     @Override
@@ -136,6 +136,10 @@ public class MapsActivity extends AppCompatActivity implements
                                 restaurants.clear();
                                 restaurants.addAll(locations);
                                 addNearbyLocationMarker(restaurants, BitmapDescriptorFactory.HUE_BLUE);
+                                CameraUpdate cameraUpdate = CameraUpdateFactory
+                                        .newLatLngZoom(new LatLng(lastKnownLocation.getLatitude(),
+                                                lastKnownLocation.getLongitude()), 15);
+                                map.animateCamera(cameraUpdate);
                             }
 
                             @Override
@@ -158,6 +162,10 @@ public class MapsActivity extends AppCompatActivity implements
                                 hotels.clear();
                                 hotels.addAll(locations);
                                 addNearbyLocationMarker(locations, BitmapDescriptorFactory.HUE_GREEN);
+                                CameraUpdate cameraUpdate = CameraUpdateFactory
+                                        .newLatLngZoom(new LatLng(lastKnownLocation.getLatitude(),
+                                                lastKnownLocation.getLongitude()), 15);
+                                map.animateCamera(cameraUpdate);
                             }
 
                             @Override
@@ -344,7 +352,7 @@ public class MapsActivity extends AppCompatActivity implements
                                 if (currentLocationMarker == null) {
                                     currentLocationMarker = map.addMarker(new MarkerOptions()
                                             .position(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()))
-                                            .title("Vị trí hiện tại"));
+                                            .title("Current location"));
                                 }
                                 getRoute(lastKnownLocation, savedTrip.getSavedTripLocations())
                                         .subscribeOn(Schedulers.io())

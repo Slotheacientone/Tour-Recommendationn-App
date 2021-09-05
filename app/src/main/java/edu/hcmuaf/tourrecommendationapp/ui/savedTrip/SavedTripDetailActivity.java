@@ -40,7 +40,7 @@ public class SavedTripDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_saved_trip_detail);
         savedTripDetailRecycleView = findViewById(R.id.saved_trip_location_recycle_view);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle("Saved trip detail");
+        getSupportActionBar().setTitle("Saved Trip Detail");
         Intent intent = getIntent();
         Bundle bundle = intent.getBundleExtra("bundle");
         savedTripId = bundle.getLong("savedTripId");

@@ -30,7 +30,6 @@ import edu.hcmuaf.tourrecommendationapp.R;
 import edu.hcmuaf.tourrecommendationapp.model.Location;
 import edu.hcmuaf.tourrecommendationapp.model.SavedTrip;
 import edu.hcmuaf.tourrecommendationapp.model.User;
-import edu.hcmuaf.tourrecommendationapp.service.DistanceService;
 import edu.hcmuaf.tourrecommendationapp.service.RecommendateService;
 import edu.hcmuaf.tourrecommendationapp.service.SavedTripService;
 import edu.hcmuaf.tourrecommendationapp.service.SortService;
@@ -63,7 +62,6 @@ public class RecommendActivity extends AppCompatActivity {
     private FusedLocationProviderClient fusedLocationProviderClient;
     private RecommendateService recommendateService;
     private WishlistService wishlistService;
-    private DistanceService distanceService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,10 +74,9 @@ public class RecommendActivity extends AppCompatActivity {
         wishlist = new ArrayList<>();
         recommendateService = RecommendateService.getInstance();
         wishlistService = WishlistService.getInstance();
-        distanceService = DistanceService.getInstance();
         user = SharedPrefs.getInstance().get("myInfo", User.class);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle("Recommended location");
+        getSupportActionBar().setTitle("Recommended Location");
         toggleSortRecommendButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -267,54 +264,6 @@ public class RecommendActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             lastKnownLocation = task.getResult();
                             prepareData();
-//                            if (lastKnownLocation != null) {
-//                                getDistances(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(), recommendations)
-//                                        .subscribeOn(Schedulers.io())
-//                                        .observeOn(AndroidSchedulers.mainThread())
-//                                        .subscribeWith(new DisposableObserver<List<Location>>() {
-//                                            @Override
-//                                            public void onNext(@io.reactivex.rxjava3.annotations.NonNull List<Location> locations) {
-//                                                if (locations.size() == recommendations.size()) {
-//                                                    for (int i = 0; i < locations.size(); i++) {
-//                                                        recommendations.get(i).setDistance(locations.get(i).getDistance());
-//                                                    }
-//                                                }
-//                                            }
-//
-//                                            @Override
-//                                            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
-//                                                Log.e(DistanceService.TAG, e.getMessage());
-//                                            }
-//
-//                                            @Override
-//                                            public void onComplete() {
-//                                                recommendationAdapter.notifyDataSetChanged();
-//                                            }
-//                                        });
-//                                getDistances(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(), wishlist)
-//                                        .subscribeOn(Schedulers.io())
-//                                        .observeOn(AndroidSchedulers.mainThread())
-//                                        .subscribeWith(new DisposableObserver<List<Location>>() {
-//                                            @Override
-//                                            public void onNext(@io.reactivex.rxjava3.annotations.NonNull List<Location> locations) {
-//                                                if (locations.size() == wishlist.size()) {
-//                                                    for (int i = 0; i < locations.size(); i++) {
-//                                                        wishlist.get(i).setDistance(locations.get(i).getDistance());
-//                                                    }
-//                                                }
-//                                            }
-//
-//                                            @Override
-//                                            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
-//                                                Log.e(DistanceService.TAG, e.getMessage());
-//                                            }
-//
-//                                            @Override
-//                                            public void onComplete() {
-//                                                wishlistAdapter.notifyDataSetChanged();
-//                                            }
-//                                        });
-//                            }
                         }
                     }
                 });
@@ -324,22 +273,6 @@ public class RecommendActivity extends AppCompatActivity {
         }
     }
 
-    private Observable<List<Location>> getDistances(double latitude, double longitude, List<Location> locations) {
-        return Observable.create(new ObservableOnSubscribe<List<Location>>() {
-            @Override
-            public void subscribe(@io.reactivex.rxjava3.annotations.NonNull ObservableEmitter<List<Location>> emitter) {
-                try {
-
-                    System.out.println("Location from ob:" + locations);
-                    List<Location> result = distanceService.getDistances(latitude, longitude, locations);
-                    emitter.onNext(result);
-                    emitter.onComplete();
-                } catch (Exception e) {
-                    emitter.onError(e);
-                }
-            }
-        });
-    }
 
     private Observable<List<Location>> getRecommendations(long userId, android.location.Location lastKnownLocation) {
         return Observable.create(new ObservableOnSubscribe<List<Location>>() {
