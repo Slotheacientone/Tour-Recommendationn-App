@@ -50,13 +50,6 @@ public class RecycleViewTopRatingAdapter extends RecyclerView.Adapter<RecycleVie
         this.locations = locations;
         this.arrayList = new ArrayList<>();
         this.arrayList.addAll(locations);
-        int SDK_INT = android.os.Build.VERSION.SDK_INT;
-        if (SDK_INT > 8) {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
-                    .permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-        }
-
     }
 
     public RecycleViewTopRatingAdapter(Context context) {
@@ -64,13 +57,6 @@ public class RecycleViewTopRatingAdapter extends RecyclerView.Adapter<RecycleVie
         this.locations = new ArrayList<>();
         this.arrayList = new ArrayList<>();
         this.arrayList.addAll(locations);
-        int SDK_INT = android.os.Build.VERSION.SDK_INT;
-        if (SDK_INT > 8) {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
-                    .permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-        }
-
     }
 
     @NonNull

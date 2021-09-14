@@ -244,6 +244,7 @@ public class RecommendActivity extends AppCompatActivity {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     locationPermissionGranted = true;
+                    getDeviceLocation();
                 }
             }
         }
@@ -263,7 +264,9 @@ public class RecommendActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<android.location.Location> task) {
                         if (task.isSuccessful()) {
                             lastKnownLocation = task.getResult();
-                            prepareData();
+                            if(lastKnownLocation!=null) {
+                                prepareData();
+                            }
                         }
                     }
                 });
