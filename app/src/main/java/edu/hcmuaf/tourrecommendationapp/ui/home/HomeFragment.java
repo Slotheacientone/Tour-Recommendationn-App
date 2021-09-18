@@ -56,7 +56,7 @@ public class HomeFragment extends Fragment {
         topRatingAdapter = new RecycleViewTopRatingAdapter(getContext(), topRatingLocation);
         topRatingRecycleView.setAdapter(topRatingAdapter);
 
-        getTopRatingLocation(5)
+        getTopRatingLocation(10)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new DisposableObserver<List<Location>>() {

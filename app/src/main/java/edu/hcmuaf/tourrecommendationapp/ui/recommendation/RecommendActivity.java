@@ -84,8 +84,8 @@ public class RecommendActivity extends AppCompatActivity {
                     sortService.sortByDistance(recommendations);
                     sortService.sortByDistance(wishlist);
                 } else {
-                    sortService.sortByRecommendScore(recommendations);
-                    sortService.sortByWishListOrder(wishlist);
+                    sortService.sortByOrder(recommendations);
+                    sortService.sortByOrder(wishlist);
                 }
                 recommendationAdapter.notifyDataSetChanged();
                 wishlistAdapter.notifyDataSetChanged();

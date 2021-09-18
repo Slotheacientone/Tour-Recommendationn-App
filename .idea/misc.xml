@@ -16,9 +16,10 @@
         <entry key="app/src/main/res/layout/activity_recommend.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_saved_trip_detail.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_dashboard.xml" value="0.1" />
-        <entry key="app/src/main/res/layout/fragment_home.xml" value="0.2980072463768116" />
+        <entry key="app/src/main/res/layout/fragment_home.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_saved_trip.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_search.xml" value="0.2740036231884058" />
+        <entry key="app/src/main/res/layout/fragment_similar_locations.xml" value="0.26902173913043476" />
         <entry key="app/src/main/res/layout/fragment_wishlist.xml" value="0.2921195652173913" />
         <entry key="app/src/main/res/layout/location_item.xml" value="0.2875905797101449" />
         <entry key="app/src/main/res/layout/location_pop_up.xml" value="0.29846014492753625" />

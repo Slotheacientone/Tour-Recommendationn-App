@@ -51,6 +51,7 @@ public class RecommendateService {
         }
         return new ArrayList<Location>();
     }
+
     public List<Location> getRecommendations(long userId, double latitude, double longitude) throws IOException {
         HttpUrl.Builder urlBuilder
                 = HttpUrl.parse(Resource.getString(R.string.base_api_uri)
@@ -69,6 +70,26 @@ public class RecommendateService {
         }.getType();
         if (response!=null && response.isSuccessful()) {
             return Utils.fromJson(response.body().string(), recommendationsType);
+        }
+        return new ArrayList<Location>();
+    }
+
+    public List<Location> getSimilarLocations(long locationId) throws IOException {
+        HttpUrl.Builder urlBuilder
+                = HttpUrl.parse(Resource.getString(R.string.base_api_uri)
+                + Resource.getString(R.string.recommendate_api_path)
+                + Resource.getString(R.string.get_similar_locations_api_uri)).newBuilder();
+        urlBuilder.addQueryParameter("locationId", String.valueOf(locationId));
+        String url = urlBuilder.build().toString();
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        Log.i(TAG, "Send request: " + request);
+        Response response = ApiClient.getClient().newCall(request).execute();
+        Type similarLocationsType = new TypeToken<List<Location>>() {
+        }.getType();
+        if (response!=null && response.isSuccessful()) {
+            return Utils.fromJson(response.body().string(), similarLocationsType);
         }
         return new ArrayList<Location>();
     }

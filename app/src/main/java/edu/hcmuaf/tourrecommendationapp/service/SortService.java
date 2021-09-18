@@ -27,20 +27,12 @@ public class SortService {
         });
     }
 
-    public void sortByRecommendScore(List<Location> locations) {
-        Collections.sort(locations, new Comparator<Location>() {
-            @Override
-            public int compare(Location location1, Location location2) {
-                return location1.getRecommendScore() > location2.getRecommendScore() ? -1 : 1;
-            }
-        });
-    }
 
-    public void sortByWishListOrder(List<Location> wishlist) {
+    public void sortByOrder(List<Location> wishlist) {
         Collections.sort(wishlist, new Comparator<Location>() {
             @Override
             public int compare(Location location1, Location location2) {
-                return location1.getWishListOrder() < location2.getWishListOrder() ? -1 : 1;
+                return location1.getOrder() < location2.getOrder() ? -1 : 1;
             }
         });
     }

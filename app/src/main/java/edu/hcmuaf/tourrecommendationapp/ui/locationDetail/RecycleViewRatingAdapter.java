@@ -21,7 +21,7 @@ import edu.hcmuaf.tourrecommendationapp.R;
 import edu.hcmuaf.tourrecommendationapp.model.Rating;
 import jp.wasabeef.picasso.transformations.CropCircleTransformation;
 
-public class RecycleViewRatingAdapter extends RecyclerView.Adapter<RecycleViewRatingAdapter.RecycleViewCommentHolder> {
+public class RecycleViewRatingAdapter extends RecyclerView.Adapter<RecycleViewRatingAdapter.RecycleViewRatingHolder> {
 
     private Context context;
     private List<Rating> ratings;
@@ -35,14 +35,14 @@ public class RecycleViewRatingAdapter extends RecyclerView.Adapter<RecycleViewRa
 
     @NonNull
     @Override
-    public RecycleViewCommentHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public RecycleViewRatingHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         View view = layoutInflater.inflate(R.layout.rating_item, parent, false);
-        return new RecycleViewCommentHolder(view);
+        return new RecycleViewRatingHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecycleViewCommentHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecycleViewRatingHolder holder, int position) {
         holder.name.setText(ratings.get(position).getUserName());
         holder.ratingBar.setRating(ratings.get(position).getRating());
         holder.comment.setText(ratings.get(position).getComment());
@@ -56,7 +56,7 @@ public class RecycleViewRatingAdapter extends RecyclerView.Adapter<RecycleViewRa
         return ratings.size();
     }
 
-    class RecycleViewCommentHolder extends RecyclerView.ViewHolder {
+    class RecycleViewRatingHolder extends RecyclerView.ViewHolder {
 
         private TextView name;
         private ImageView avatar;
@@ -64,7 +64,7 @@ public class RecycleViewRatingAdapter extends RecyclerView.Adapter<RecycleViewRa
         private TextView comment;
         private TextView date;
 
-        public RecycleViewCommentHolder(@NonNull View itemView) {
+        public RecycleViewRatingHolder(@NonNull View itemView) {
             super(itemView);
             name = itemView.findViewById(R.id.rating_item_user_name);
             avatar = itemView.findViewById(R.id.rating_item_user_avatar);

@@ -52,5 +52,10 @@
                 android:id="@+id/rating_fragment_container_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
+
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/similar_locations_fragment_container_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
         </LinearLayout>
 </androidx.core.widget.NestedScrollView>

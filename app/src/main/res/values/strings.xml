@@ -37,6 +37,7 @@
     <!-- Recommendate api -->
     <string name="recommendate_api_path">/api/recommend</string>
     <string name="get_recommendation_api_uri">/get-recommendations</string>
+    <string name="get_similar_locations_api_uri">/get-similar-locations</string>
 
     <!-- Direction api -->
     <string name="direction_api_path">https://maps.googleapis.com/maps/api/directions/json</string>

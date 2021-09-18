@@ -13,7 +13,6 @@ public class Location implements Serializable {
     private String locationName;
     private String locationImageUrl;
     private float ratings;
-    private float recommendScore;
     private int numberOfPeopleRating;
     /**
      * Location latitude.
@@ -27,7 +26,7 @@ public class Location implements Serializable {
 
     private long distance;
 
-    private int wishListOrder;
+    private int order;
 
     private boolean isSelected=false;
 

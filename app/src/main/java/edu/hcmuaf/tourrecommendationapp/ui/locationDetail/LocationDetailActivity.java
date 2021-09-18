@@ -50,10 +50,13 @@ public class LocationDetailActivity extends AppCompatActivity {
         setTitle(location.getLocationName());
 
         if (savedInstanceState == null) {
-            Bundle commentBundle = new Bundle();
-            commentBundle.putLong("locationId", location.getLocationId());
+            Bundle bundle = new Bundle();
+            bundle.putLong("locationId", location.getLocationId());
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.rating_fragment_container_view, RatingsFragment.class, commentBundle)
+                    .add(R.id.rating_fragment_container_view, RatingsFragment.class, bundle)
+                    .commit();
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.similar_locations_fragment_container_view, SimilarLocationsFragment.class, bundle)
                     .commit();
         }
         user = SharedPrefs.getInstance().get("myInfo", User.class);
