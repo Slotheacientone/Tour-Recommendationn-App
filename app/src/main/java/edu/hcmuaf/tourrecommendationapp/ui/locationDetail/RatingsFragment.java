@@ -67,7 +67,6 @@ public class RatingsFragment extends Fragment {
     private RecycleViewRatingAdapter adapter;
     private DateFormat dateFormat;
     private Rating currentUserRating = null;
-    private boolean firstTimeSetRatingBar = true;
     private boolean isUserSetRatingBar = true;
 
 
@@ -168,7 +167,6 @@ public class RatingsFragment extends Fragment {
                             requestRatings();
                             break;
                         case Activity.RESULT_CANCELED:
-                            isUserSetRatingBar = false;
                             if (currentUserRating != null) {
                                 if (ratingBar.getRating() != currentUserRating.getRating()) {
                                     isUserSetRatingBar = false;
@@ -194,19 +192,17 @@ public class RatingsFragment extends Fragment {
                         currentUserRating = ratingService.getCurrentUserComment(result);
                         if (currentUserRating != null) {
                             hideCurrentComment(false);
-                            System.out.println(currentUserRating.getAvatar());
                             Picasso.get().load(currentUserRating.getAvatar()).transform(new CropCircleTransformation()).into(currentUserRatingAvatar);
                             currentUserRatingName.setText(currentUserRating.getUserName());
                             currentUserRatingBar.setRating(currentUserRating.getRating());
                             currentUserRatingcomment.setText(currentUserRating.getComment());
                             currentUserRatingDate.setText(dateFormat.format(currentUserRating.getDate()));
-                            isUserSetRatingBar = false;
-                            ratingBar.setRating(currentUserRating.getRating());
+                            if (ratingBar.getRating() != currentUserRating.getRating()) {
+                                isUserSetRatingBar = false;
+                                ratingBar.setRating(currentUserRating.getRating());
+                            }
                         } else {
                             hideCurrentComment(true);
-                            currentUserRating = null;
-                            isUserSetRatingBar = false;
-                            ratingBar.setRating(0F);
                         }
                         ratings.clear();
                         ratings.addAll(result);
